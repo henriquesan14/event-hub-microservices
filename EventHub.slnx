@@ -7,6 +7,12 @@
     <Project Path="building-blocks/BuildingBlocks.SharedKernel/BuildingBlocks.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/Services/" />
+  <Folder Name="/Services/Event/">
+    <Project Path="src/EventService/Event.Api/Events.Api.csproj" Id="d7fcebdc-3a25-42a5-a84f-fc601f3be26c" />
+    <Project Path="src/EventService/Event.Application/Events.Application.csproj" Id="04f377fe-1b6d-4dfd-8c25-ee8b5ae13ed0" />
+    <Project Path="src/EventService/Event.Domain/Events.Domain.csproj" Id="dc861a87-e394-4f6a-bce6-f353cdd7b834" />
+    <Project Path="src/EventService/Event.Infrastructure/Events.Infrastructure.csproj" Id="0bcf37bb-7638-4b55-9f07-bad26c7331d4" />
+  </Folder>
   <Folder Name="/Services/Identity/">
     <Project Path="src/IdentityService/Identity.Api/Identity.Api.csproj" />
     <Project Path="src/IdentityService/Identity.Application/Identity.Application.csproj" />

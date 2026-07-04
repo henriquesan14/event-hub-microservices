@@ -1,7 +1,8 @@
 ﻿using BuildingBlocks.SharedKernel.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace Identity.Api.Services;
+namespace BuildingBlocks.Api.Authentication;
 
 public sealed class UserContext : IUserContext
 {

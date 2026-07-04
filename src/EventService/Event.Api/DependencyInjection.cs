@@ -8,7 +8,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 
-namespace Identity.Api;
+namespace Events.Api;
 
 public static class DependencyInjection
 {
