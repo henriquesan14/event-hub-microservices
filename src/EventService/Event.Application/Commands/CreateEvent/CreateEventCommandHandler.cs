@@ -13,7 +13,9 @@ public sealed class CreateEventCommandHandler(IEventRepository eventRepository, 
 {
     public async Task<ResultT<EventDto>> Handle(CreateEventCommand request, CancellationToken ct)
     {
-        var eventEntity = Event.Create(EventId.New(), request.Title, request.Description, request.Address, 
+        var address = new Address(request.Address.Street, request.Address.Number, request.Address.District,
+            request.Address.City, request.Address.State, request.Address.Country, request.Address.ZipCode);
+        var eventEntity = Event.Create(EventId.New(), request.Title, request.Description, address, 
             request.StartsAt, request.EndsAt, UserId.Of(userContext.UserId!.Value));
         await eventRepository.AddAsync(eventEntity,  ct);
 

@@ -1,11 +1,11 @@
 ﻿using BuildingBlocks.SharedKernel.CQRS;
 using BuildingBlocks.SharedKernel.Result;
-using Events.Domain.ValueObjects;
+using Events.Application.Dtos;
 using EventsApplication.Dtos;
 
 namespace EventsApplication.Commands.CreateEvent;
 
-public sealed record CreateEventCommand(string Title, string Description, Address Address, DateTime StartsAt,
+public sealed record CreateEventCommand(string Title, string Description, AddressRequest Address, DateTime StartsAt,
     DateTime EndsAt) : ICommand<ResultT<EventDto>>;
 
 
