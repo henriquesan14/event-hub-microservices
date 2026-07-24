@@ -4,7 +4,6 @@ using Events.Application.Queries.GetEvents;
 using EventsApplication.Commands.CreateEvent;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Events.Api.Endpoints;
 
@@ -12,7 +11,7 @@ public sealed class EventModules : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/events");
+        var group = app.MapGroup("/api/events").RequireAuthorization();
 
         group.MapPost("/", Create);
         group.MapGet("/", GetEvents);

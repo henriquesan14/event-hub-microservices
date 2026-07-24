@@ -12,6 +12,12 @@ public static class AuthErrors
     public static Error RefreshTokenNotFound() =>
         Error.AccessUnAuthorized("Auth.Unauthorized", $"RefreshToken nao encontrado");
 
+    public static Error InvalidRefreshToken() =>
+        Error.AccessUnAuthorized("Auth.InvalidRefreshToken", "Refresh token inválido, expirado ou revogado");
+
+    public static Error InvalidCurrentPassword() =>
+        Error.AccessUnAuthorized("Auth.InvalidCurrentPassword", "A senha atual está incorreta");
+
     public static Error InvalidVerifiedToken() =>
         Error.AccessUnAuthorized("Auth.Unauthorized", $"Token de verificação inválido");
 

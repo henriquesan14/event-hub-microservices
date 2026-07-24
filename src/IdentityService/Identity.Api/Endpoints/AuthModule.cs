@@ -2,6 +2,8 @@
 using Carter;
 using FluentValidation;
 using Identity.Application.Commands.GenerateAccessToken;
+using Identity.Application.Commands.Logout;
+using Identity.Application.Commands.RefreshAccessToken;
 using Identity.Application.Commands.RegisterUser;
 using MediatR;
 
@@ -15,6 +17,8 @@ public sealed class AuthModule : ICarterModule
 
         group.MapPost("/", Login);
         group.MapPost("/register", Register);
+        group.MapPost("/refresh", Refresh);
+        group.MapPost("/logout", Logout);
     }
 
     private static async Task<IResult> Login(
@@ -46,6 +50,18 @@ public sealed class AuthModule : ICarterModule
 
         var result = await sender.Send(command, ct);
 
+        return result.ToHttpResult();
+    }
+
+    private static async Task<IResult> Refresh(ISender sender, CancellationToken ct)
+    {
+        var result = await sender.Send(new RefreshAccessTokenCommand(), ct);
+        return result.ToHttpResult();
+    }
+
+    private static async Task<IResult> Logout(ISender sender, CancellationToken ct)
+    {
+        var result = await sender.Send(new LogoutCommand(), ct);
         return result.ToHttpResult();
     }
 }

@@ -61,8 +61,12 @@ public sealed class User : AggregateRoot<UserId>
         Name = name;
     }
 
-    public void ChangePassword(string oldPassword, string newPassword, IPasswordCheck checker, IPasswordHash hasher)
+    public bool ChangePassword(string oldPassword, string newPassword, IPasswordCheck checker, IPasswordHash hasher)
     {
+        if (!checker.Matches(oldPassword, PasswordHash))
+            return false;
+
         PasswordHash = hasher.HashPassword(newPassword);
+        return true;
     }
 }
