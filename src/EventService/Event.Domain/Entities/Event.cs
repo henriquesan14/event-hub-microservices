@@ -67,25 +67,24 @@ public sealed class Event : AggregateRoot<EventId>
             organizerId);
     }
 
-    //public void Publish()
-    //{
-    //    if (Status != EventStatus.Draft)
-    //        throw new DomainException("Only draft events can be published.");
+    public void Publish()
+    {
+        if (Status != EventStatus.Draft)
+            throw new DomainException("Only draft events can be published.");
 
-    //    Status = EventStatus.Published;
+        if (StartsAt <= DateTime.UtcNow)
+            throw new DomainException("Past events cannot be published.");
 
-    //    Raise(new EventPublishedDomainEvent(Id));
-    //}
+        Status = EventStatus.Published;
+    }
 
-    //public void Cancel()
-    //{
-    //    if (Status == EventStatus.Cancelled)
-    //        return;
+    public void Cancel()
+    {
+        if (Status is EventStatus.Cancelled or EventStatus.Finished)
+            throw new DomainException("Cancelled or finished events cannot be cancelled.");
 
-    //    Status = EventStatus.Cancelled;
-
-    //    Raise(new EventCancelledDomainEvent(Id));
-    //}
+        Status = EventStatus.Cancelled;
+    }
 
     public void Update(
         string title,
@@ -96,6 +95,9 @@ public sealed class Event : AggregateRoot<EventId>
     {
         if (Status == EventStatus.Cancelled)
             throw new DomainException("Cancelled events cannot be updated.");
+
+        if (startsAt >= endsAt)
+            throw new DomainException("The start date must be before the end date.");
 
         Title = title;
         Description = description;

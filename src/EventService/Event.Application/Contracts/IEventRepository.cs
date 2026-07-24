@@ -6,6 +6,8 @@ namespace EventsApplication.Contracts;
 public interface IEventRepository
 {
     Task<Event> AddAsync(Event entity, CancellationToken ct);
+    Task<Event?> GetByIdAsync(Guid id, CancellationToken ct);
+    void Delete(Event entity);
     Task<IEnumerable<Event>> GetEvents(string? title,
         EventStatus? status,
         int page,

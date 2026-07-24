@@ -13,6 +13,17 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
         return entity;
     }
 
+    public async Task<Event?> GetByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await context.Events
+            .FirstOrDefaultAsync(x => x.Id == Events.Domain.ValueObjects.EventId.Of(id), ct);
+    }
+
+    public void Delete(Event entity)
+    {
+        context.Events.Remove(entity);
+    }
+
     public async Task<int> CountAsync(string? title,
         EventStatus? status, CancellationToken ct)
     {
@@ -39,8 +50,6 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
 
         if (status is not null)
             query = query.Where(x => x.Status == status);
-
-        var totalCount = await query.CountAsync(ct);
 
         var items = await query
             .OrderBy(x => x.StartsAt)

@@ -56,7 +56,7 @@ public static class DependencyInjection
             app.MapScalarApiReference(options =>
             {
                 options
-                    .WithTitle("Identity API")
+                    .WithTitle("Event API")
                     .WithTheme(ScalarTheme.Purple)
                     .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
             });

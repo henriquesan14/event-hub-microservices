@@ -14,6 +14,7 @@ public static class EventExtensions
             eventEntity.Address,
             eventEntity.StartsAt,
             eventEntity.EndsAt,
+            eventEntity.Status,
             eventEntity.OrganizerId.Value,
             eventEntity.CreatedAt,
             eventEntity.CreatedByName
