@@ -1,0 +1,13 @@
+@OrderApi = https://localhost:62576
+
+GET {{OrderApi}}/health
+Accept: application/json
+
+###
+
+POST {{OrderApi}}/api/orders
+Content-Type: application/json
+
+{
+  "reservationId": "00000000-0000-0000-0000-000000000000"
+}

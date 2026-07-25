@@ -25,4 +25,10 @@
     <Project Path="src/TicketingService/Ticketing.Domain/Ticketing.Domain.csproj" />
     <Project Path="src/TicketingService/Ticketing.Infrastructure/Ticketing.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Services/Order/">
+    <Project Path="src/OrderService/Order.Api/Order.Api.csproj" />
+    <Project Path="src/OrderService/Order.Application/Order.Application.csproj" />
+    <Project Path="src/OrderService/Order.Domain/Order.Domain.csproj" />
+    <Project Path="src/OrderService/Order.Infrastructure/Order.Infrastructure.csproj" />
+  </Folder>
 </Solution>

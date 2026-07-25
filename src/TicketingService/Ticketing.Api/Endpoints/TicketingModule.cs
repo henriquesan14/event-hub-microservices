@@ -11,6 +11,7 @@ using Ticketing.Application.Commands.ReleaseReservation;
 using Ticketing.Application.Commands.UpdateTicketType;
 using Ticketing.Application.Queries.GetTicketType;
 using Ticketing.Application.Queries.GetTicketTypesByEvent;
+using Ticketing.Application.Queries.GetReservation;
 
 namespace Ticketing.Api.Endpoints;
 
@@ -26,6 +27,7 @@ public sealed class TicketingModule : ICarterModule
         tickets.MapDelete("/tickets/{id:guid}", Delete).RequireAuthorization();
 
         tickets.MapPost("/tickets/{ticketTypeId:guid}/reservations", Reserve).RequireAuthorization();
+        tickets.MapGet("/reservations/{id:guid}", GetReservation).RequireAuthorization();
         tickets.MapPost("/reservations/{id:guid}/confirm", Confirm).RequireAuthorization();
         tickets.MapDelete("/reservations/{id:guid}", Release).RequireAuthorization();
         tickets.MapPost("/reservations/expire", Expire).RequireAuthorization();
@@ -88,6 +90,9 @@ public sealed class TicketingModule : ICarterModule
 
     private static async Task<IResult> Expire(ISender sender, CancellationToken ct) =>
         (await sender.Send(new ExpireReservationsCommand(), ct)).ToHttpResult();
+
+    private static async Task<IResult> GetReservation(Guid id, ISender sender, CancellationToken ct) =>
+        (await sender.Send(new GetReservationQuery(id), ct)).ToHttpResult();
 }
 
 public sealed record CreateTicketTypeRequest(
