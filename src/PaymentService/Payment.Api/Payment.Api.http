@@ -18,20 +18,28 @@ Authorization: Bearer {{token}}
 
 ###
 
-POST {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}/approve
+POST {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}/checkout
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "providerReference": "sandbox-transaction-001"
+  "name": "Cliente Sandbox",
+  "email": "cliente@example.com",
+  "cpfCnpj": "12345678909",
+  "mobilePhone": "11999999999",
+  "billingType": "UNDEFINED"
 }
 
 ###
 
-POST {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}/fail
-Authorization: Bearer {{token}}
+POST {{Payment_Api_HostAddress}}/api/webhooks/asaas
+asaas-access-token: configure-a-webhook-token-with-at-least-32-characters
 Content-Type: application/json
 
 {
-  "reason": "Payment declined"
+  "id": "evt_example",
+  "event": "PAYMENT_RECEIVED",
+  "payment": {
+    "id": "pay_example"
+  }
 }

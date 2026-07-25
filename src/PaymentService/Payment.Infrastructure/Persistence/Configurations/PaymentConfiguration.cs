@@ -20,6 +20,10 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Domain.Entit
         builder.Property(x => x.Currency).HasMaxLength(3);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
         builder.Property(x => x.ProviderReference).HasMaxLength(200);
+        builder.HasIndex(x => x.ProviderReference).IsUnique();
+        builder.Property(x => x.ProviderCustomerReference).HasMaxLength(200);
+        builder.Property(x => x.BillingType).HasMaxLength(30);
+        builder.Property(x => x.InvoiceUrl).HasMaxLength(1000);
         builder.Property(x => x.FailureReason).HasMaxLength(500);
     }
 }

@@ -6,6 +6,8 @@ namespace Payment.Infrastructure.Persistence;
 public sealed class PaymentDbContext(DbContextOptions<PaymentDbContext> options) : DbContext(options)
 {
     public DbSet<Domain.Entities.Payment> Payments => Set<Domain.Entities.Payment>();
+    public DbSet<Domain.Entities.ProcessedWebhookEvent> ProcessedWebhookEvents =>
+        Set<Domain.Entities.ProcessedWebhookEvent>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -14,4 +14,12 @@ public static class PaymentErrors
         Error.AccessForbidden("Payment.Forbidden", "This payment belongs to another user");
     public static Error InvalidState(string status) =>
         Error.Conflict("Payment.InvalidState", $"Payment cannot be changed from status: {status}");
+    public static Error ChargeAlreadyCreated() =>
+        Error.Conflict("Payment.ChargeAlreadyCreated", "An Asaas charge already exists for this payment");
+    public static Error InvalidBillingType() =>
+        Error.Validation("Payment.InvalidBillingType", "Billing type must be UNDEFINED, PIX, BOLETO or CREDIT_CARD");
+    public static Error InvalidCheckoutData() =>
+        Error.Validation("Payment.InvalidCheckoutData", "Name, email and CPF/CNPJ are required");
+    public static Error UnsupportedCurrency(string currency) =>
+        Error.Validation("Payment.UnsupportedCurrency", $"Asaas checkout requires BRL, but payment currency is {currency}");
 }

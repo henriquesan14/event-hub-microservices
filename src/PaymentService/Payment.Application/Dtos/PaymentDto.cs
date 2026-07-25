@@ -14,5 +14,8 @@ public sealed record PaymentDto(
     DateTime? ApprovedAt,
     DateTime? FailedAt,
     string? ProviderReference,
+    string? ProviderCustomerReference,
+    string? BillingType,
+    string? InvoiceUrl,
     string? FailureReason,
     DateTime? CreatedAt);

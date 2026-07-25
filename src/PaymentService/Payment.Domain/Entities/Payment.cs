@@ -36,6 +36,9 @@ public sealed class Payment : AggregateRoot<Guid>
     public DateTime? ApprovedAt { get; private set; }
     public DateTime? FailedAt { get; private set; }
     public string? ProviderReference { get; private set; }
+    public string? ProviderCustomerReference { get; private set; }
+    public string? BillingType { get; private set; }
+    public string? InvoiceUrl { get; private set; }
     public string? FailureReason { get; private set; }
 
     public static Payment Create(
@@ -66,14 +69,34 @@ public sealed class Payment : AggregateRoot<Guid>
     {
         if (Status != PaymentStatus.Pending)
             throw new DomainException("Only pending payments can be approved.");
-        if (now >= ExpiresAt)
-            throw new DomainException("Payment has expired.");
         if (string.IsNullOrWhiteSpace(providerReference))
             throw new DomainException("Provider reference is required.");
 
         Status = PaymentStatus.Approved;
         ProviderReference = providerReference.Trim();
         ApprovedAt = now;
+    }
+
+    public void AttachProviderCharge(
+        string providerReference,
+        string providerCustomerReference,
+        string billingType,
+        string invoiceUrl)
+    {
+        if (Status != PaymentStatus.Pending)
+            throw new DomainException("Only pending payments can receive a provider charge.");
+        if (!string.IsNullOrWhiteSpace(ProviderReference))
+            return;
+        if (string.IsNullOrWhiteSpace(providerReference) ||
+            string.IsNullOrWhiteSpace(providerCustomerReference) ||
+            string.IsNullOrWhiteSpace(billingType) ||
+            string.IsNullOrWhiteSpace(invoiceUrl))
+            throw new DomainException("Provider charge data is required.");
+
+        ProviderReference = providerReference.Trim();
+        ProviderCustomerReference = providerCustomerReference.Trim();
+        BillingType = billingType.Trim().ToUpperInvariant();
+        InvoiceUrl = invoiceUrl.Trim();
     }
 
     public void Fail(string reason, DateTime now)

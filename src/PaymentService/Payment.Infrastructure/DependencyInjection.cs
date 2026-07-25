@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.Contracts;
 using Payment.Infrastructure.Messaging.Consumers;
+using Payment.Infrastructure.Integrations.Asaas;
 using Payment.Infrastructure.Persistence;
 using Payment.Infrastructure.Persistence.Repositories;
 
@@ -25,6 +26,20 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.Configure<AsaasOptions>(
+            configuration.GetSection(AsaasOptions.SectionName));
+        services.AddHttpClient<IAsaasGateway, AsaasGateway>((sp, client) =>
+        {
+            var options = configuration
+                .GetSection(AsaasOptions.SectionName)
+                .Get<AsaasOptions>()!;
+            client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+            if (!string.IsNullOrWhiteSpace(options.ApiKey))
+                client.DefaultRequestHeaders.TryAddWithoutValidation(
+                    "access_token",
+                    options.ApiKey);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
+        });
 
         services.AddMassTransit(x =>
         {

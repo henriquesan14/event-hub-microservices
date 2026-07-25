@@ -17,6 +17,9 @@ public static class PaymentExtensions
             payment.ApprovedAt,
             payment.FailedAt,
             payment.ProviderReference,
+            payment.ProviderCustomerReference,
+            payment.BillingType,
+            payment.InvoiceUrl,
             payment.FailureReason,
             payment.CreatedAt);
 }

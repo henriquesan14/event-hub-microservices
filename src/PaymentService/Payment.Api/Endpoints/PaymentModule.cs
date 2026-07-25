@@ -1,8 +1,7 @@
 using BuildingBlocks.Api.Extensions;
 using Carter;
 using MediatR;
-using Payment.Application.Commands.ApprovePayment;
-using Payment.Application.Commands.FailPayment;
+using Payment.Application.Commands.CreateCheckout;
 using Payment.Application.Queries.GetMyPayments;
 using Payment.Application.Queries.GetPayment;
 using Payment.Application.Queries.GetPaymentByOrder;
@@ -17,8 +16,7 @@ public sealed class PaymentModule : ICarterModule
         group.MapGet("/me", GetMine);
         group.MapGet("/by-order/{orderId:guid}", GetByOrder);
         group.MapGet("/{id:guid}", GetById);
-        group.MapPost("/{id:guid}/approve", Approve);
-        group.MapPost("/{id:guid}/fail", Fail);
+        group.MapPost("/{id:guid}/checkout", Checkout);
     }
 
     private static async Task<IResult> GetMine(ISender sender, CancellationToken ct) =>
@@ -33,22 +31,26 @@ public sealed class PaymentModule : ICarterModule
         CancellationToken ct) =>
         (await sender.Send(new GetPaymentByOrderQuery(orderId), ct)).ToHttpResult();
 
-    private static async Task<IResult> Approve(
+    private static async Task<IResult> Checkout(
         Guid id,
-        ApprovePaymentRequest request,
+        CreateCheckoutRequest request,
         ISender sender,
         CancellationToken ct) =>
-        (await sender.Send(new ApprovePaymentCommand(id, request.ProviderReference), ct))
+        (await sender.Send(
+            new CreateCheckoutCommand(
+                id,
+                request.Name,
+                request.Email,
+                request.CpfCnpj,
+                request.MobilePhone,
+                request.BillingType),
+            ct))
         .ToHttpResult();
 
-    private static async Task<IResult> Fail(
-        Guid id,
-        FailPaymentRequest request,
-        ISender sender,
-        CancellationToken ct) =>
-        (await sender.Send(new FailPaymentCommand(id, request.Reason), ct))
-        .ToHttpResult();
-
-    private sealed record ApprovePaymentRequest(string ProviderReference);
-    private sealed record FailPaymentRequest(string Reason);
+    private sealed record CreateCheckoutRequest(
+        string Name,
+        string Email,
+        string CpfCnpj,
+        string? MobilePhone,
+        string BillingType = "UNDEFINED");
 }

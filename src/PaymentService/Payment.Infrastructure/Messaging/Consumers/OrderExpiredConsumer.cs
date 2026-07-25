@@ -4,7 +4,9 @@ using Payment.Application.Contracts;
 
 namespace Payment.Infrastructure.Messaging.Consumers;
 
-public sealed class OrderExpiredConsumer(IPaymentRepository repository)
+public sealed class OrderExpiredConsumer(
+    IPaymentRepository repository,
+    IAsaasGateway asaasGateway)
     : IConsumer<OrderExpiredIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderExpiredIntegrationEvent> context)
@@ -14,6 +16,11 @@ public sealed class OrderExpiredConsumer(IPaymentRepository repository)
             context.CancellationToken);
         if (payment is null)
             return;
+
+        if (!string.IsNullOrWhiteSpace(payment.ProviderReference))
+            await asaasGateway.CancelChargeAsync(
+                payment.ProviderReference,
+                context.CancellationToken);
 
         payment.Expire(DateTime.Now);
         await repository.SaveChangesAsync(context.CancellationToken);
