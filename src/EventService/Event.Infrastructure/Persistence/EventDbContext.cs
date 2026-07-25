@@ -12,7 +12,6 @@ public sealed class EventDbContext : DbContext
     }
 
     public DbSet<Event> Events => Set<Event>();
-    public DbSet<Ticket> Tickets => Set<Ticket>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

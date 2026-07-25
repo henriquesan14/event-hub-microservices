@@ -47,10 +47,5 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Event>
             address.Property(x => x.Country).HasMaxLength(100);
             address.Property(x => x.ZipCode).HasMaxLength(20);
         });
-
-        builder.HasMany(x => x.Tickets)
-            .WithOne()
-            .HasForeignKey("EventId")
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

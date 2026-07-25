@@ -6,8 +6,6 @@ namespace Events.Domain.Entities;
 
 public sealed class Event : AggregateRoot<EventId>
 {
-    private readonly List<Ticket> _tickets = [];
-
     private Event (){ }
 
     private Event(
@@ -42,8 +40,6 @@ public sealed class Event : AggregateRoot<EventId>
     public EventStatus Status { get; private set; }
 
     public UserId OrganizerId { get; private set; }
-
-    public IReadOnlyCollection<Ticket> Tickets => _tickets.AsReadOnly();
 
     public static Event Create(
         EventId eventId,
@@ -104,10 +100,5 @@ public sealed class Event : AggregateRoot<EventId>
         Address = address;
         StartsAt = startsAt;
         EndsAt = endsAt;
-    }
-
-    public void AddTicket(Ticket ticket)
-    {
-        _tickets.Add(ticket);
     }
 }
