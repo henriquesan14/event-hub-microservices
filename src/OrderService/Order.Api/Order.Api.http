@@ -5,9 +5,4 @@ Accept: application/json
 
 ###
 
-POST {{OrderApi}}/api/orders
-Content-Type: application/json
-
-{
-  "reservationId": "00000000-0000-0000-0000-000000000000"
-}
+GET {{OrderApi}}/api/orders/by-reservation/00000000-0000-0000-0000-000000000000

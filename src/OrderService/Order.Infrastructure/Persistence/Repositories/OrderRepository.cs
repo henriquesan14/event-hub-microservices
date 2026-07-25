@@ -12,6 +12,12 @@ public sealed class OrderRepository(OrderDbContext context) : IOrderRepository
     public Task<Domain.Entities.Order?> GetByIdAsync(Guid id, CancellationToken ct) =>
         context.Orders.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == id, ct);
 
+    public Task<Domain.Entities.Order?> GetByReservationIdAsync(Guid reservationId, CancellationToken ct) =>
+        context.Orders
+            .AsNoTracking()
+            .Include(x => x.Items)
+            .FirstOrDefaultAsync(x => x.ReservationId == reservationId, ct);
+
     public Task<bool> ReservationHasOrderAsync(Guid reservationId, CancellationToken ct) =>
         context.Orders.AnyAsync(x => x.ReservationId == reservationId, ct);
 

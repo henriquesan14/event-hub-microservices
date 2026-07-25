@@ -1,12 +1,14 @@
 using BuildingBlocks.SharedKernel.CQRS;
 using BuildingBlocks.SharedKernel.Result;
 using Order.Application.Contracts;
+using BuildingBlocks.Contracts.Orders;
+using MassTransit;
 
 namespace Order.Application.Commands.ExpireOrders;
 
 public sealed class ExpireOrdersCommandHandler(
     IOrderRepository repository,
-    ITicketingGateway ticketingGateway)
+    IPublishEndpoint publishEndpoint)
     : ICommandHandler<ExpireOrdersCommand, ResultT<int>>
 {
     public async Task<ResultT<int>> Handle(ExpireOrdersCommand request, CancellationToken ct)
@@ -16,10 +18,12 @@ public sealed class ExpireOrdersCommandHandler(
         var expired = 0;
         foreach (var order in orders)
         {
-            if (!await ticketingGateway.ReleaseReservationAsync(order.ReservationId, ct))
-                continue;
-
             order.Expire(now);
+            await publishEndpoint.Publish(
+                new OrderExpiredIntegrationEvent(
+                    order.Id, order.Id, order.ReservationId),
+                context => context.CorrelationId = order.Id,
+                ct);
             expired++;
         }
 

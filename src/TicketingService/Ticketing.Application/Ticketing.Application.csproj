@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MassTransit.Abstractions" Version="8.5.10" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.SharedKernel\BuildingBlocks.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Contracts\BuildingBlocks.Contracts.csproj" />
     <ProjectReference Include="..\Ticketing.Domain\Ticketing.Domain.csproj" />
   </ItemGroup>
 </Project>

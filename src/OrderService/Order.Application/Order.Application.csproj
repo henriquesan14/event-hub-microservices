@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MassTransit.Abstractions" Version="8.5.10" />
     <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.SharedKernel\BuildingBlocks.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Contracts\BuildingBlocks.Contracts.csproj" />
     <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
   </ItemGroup>
 </Project>

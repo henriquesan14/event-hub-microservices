@@ -2,7 +2,6 @@ using BuildingBlocks.Api.Extensions;
 using Carter;
 using FluentValidation;
 using MediatR;
-using Ticketing.Application.Commands.ConfirmReservation;
 using Ticketing.Application.Commands.CreateReservation;
 using Ticketing.Application.Commands.CreateTicketType;
 using Ticketing.Application.Commands.DeleteTicketType;
@@ -28,7 +27,6 @@ public sealed class TicketingModule : ICarterModule
 
         tickets.MapPost("/tickets/{ticketTypeId:guid}/reservations", Reserve).RequireAuthorization();
         tickets.MapGet("/reservations/{id:guid}", GetReservation).RequireAuthorization();
-        tickets.MapPost("/reservations/{id:guid}/confirm", Confirm).RequireAuthorization();
         tickets.MapDelete("/reservations/{id:guid}", Release).RequireAuthorization();
         tickets.MapPost("/reservations/expire", Expire).RequireAuthorization();
     }
@@ -81,9 +79,6 @@ public sealed class TicketingModule : ICarterModule
         var validation = await validator.ValidateRequest(command, ct);
         return validation ?? (await sender.Send(command, ct)).ToHttpResult();
     }
-
-    private static async Task<IResult> Confirm(Guid id, ISender sender, CancellationToken ct) =>
-        (await sender.Send(new ConfirmReservationCommand(id), ct)).ToHttpResult();
 
     private static async Task<IResult> Release(Guid id, ISender sender, CancellationToken ct) =>
         (await sender.Send(new ReleaseReservationCommand(id), ct)).ToHttpResult();

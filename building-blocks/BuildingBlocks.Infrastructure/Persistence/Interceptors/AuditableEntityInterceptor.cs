@@ -29,8 +29,12 @@ public sealed class AuditableEntityInterceptor(IUserContext userContext) : SaveC
                 var now = DateTime.Now;
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = userContext.UserId;
-                    entry.Entity.CreatedByName = userContext.Name;
+                    if (userContext.UserId is not null)
+                        entry.Entity.CreatedBy = userContext.UserId;
+
+                    if (!string.IsNullOrWhiteSpace(userContext.Name))
+                        entry.Entity.CreatedByName = userContext.Name;
+
                     entry.Entity.CreatedAt = now;
                 }
                 if (userContext.UserId != null) entry.Entity.LastModifiedBy = userContext.UserId;

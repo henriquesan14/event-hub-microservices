@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Order.Infrastructure.Persistence;
+using Ticketing.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Order.Infrastructure.Migrations
+namespace Ticketing.Infrastructure.Migrations
 {
-    [DbContext(typeof(OrderDbContext))]
-    partial class OrderDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(TicketingDbContext))]
+    [Migration("20260725172957_AddMessagingOutbox")]
+    partial class AddMessagingOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,7 +193,7 @@ namespace Order.Infrastructure.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("Order.Domain.Entities.Order", b =>
+            modelBuilder.Entity("Ticketing.Domain.Entities.TicketReservation", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -203,11 +206,6 @@ namespace Order.Infrastructure.Migrations
 
                     b.Property<string>("CreatedByName")
                         .HasColumnType("text");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp without time zone");
@@ -218,38 +216,38 @@ namespace Order.Infrastructure.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PaymentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<decimal>("Total")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<Guid>("TicketTypeId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReservationId")
-                        .IsUnique();
+                    b.HasIndex("TicketTypeId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("orders", (string)null);
+                    b.HasIndex("Status", "ExpiresAt");
+
+                    b.ToTable("ticket_reservations", (string)null);
                 });
 
-            modelBuilder.Entity("Order.Domain.Entities.OrderItem", b =>
+            modelBuilder.Entity("Ticketing.Domain.Entities.TicketType", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
@@ -264,6 +262,11 @@ namespace Order.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<Guid>("EventId")
                         .HasColumnType("uuid");
@@ -279,28 +282,33 @@ namespace Order.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
-                    b.Property<int>("Quantity")
+                    b.Property<DateTime>("SalesEnd")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("SalesStart")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("TotalQuantity")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TicketTypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Total")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("EventId");
 
-                    b.ToTable("order_items", (string)null);
+                    b.ToTable("ticket_types", (string)null);
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -315,18 +323,15 @@ namespace Order.Infrastructure.Migrations
                         .HasPrincipalKey("MessageId", "ConsumerId");
                 });
 
-            modelBuilder.Entity("Order.Domain.Entities.OrderItem", b =>
+            modelBuilder.Entity("Ticketing.Domain.Entities.TicketReservation", b =>
                 {
-                    b.HasOne("Order.Domain.Entities.Order", null)
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Ticketing.Domain.Entities.TicketType", "TicketType")
+                        .WithMany()
+                        .HasForeignKey("TicketTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Order.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("Items");
+                    b.Navigation("TicketType");
                 });
 #pragma warning restore 612, 618
         }
