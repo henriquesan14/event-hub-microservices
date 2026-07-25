@@ -3,18 +3,20 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 namespace BuildingBlocks.Api.ErrorHandling;
 
 public sealed class CustomExceptionHandler
-(ILogger<CustomExceptionHandler> logger)
+(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment)
 : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(
-            "Error Message: {exceptionMessage}, Time of occurrence {time}",
-            exception.Message, DateTime.Now);
+            exception,
+            "Unhandled exception at {time}",
+            DateTime.Now);
 
         (string Detail, string Title, int StatusCode) details = exception switch
         {
@@ -26,8 +28,12 @@ public sealed class CustomExceptionHandler
             ),
             _ =>
             (
-                exception.Message,
-                exception.GetType().Name,
+                environment.IsDevelopment()
+                    ? exception.GetBaseException().Message
+                    : "An unexpected error occurred.",
+                environment.IsDevelopment()
+                    ? exception.GetType().Name
+                    : "Internal Server Error",
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError
             )
         };

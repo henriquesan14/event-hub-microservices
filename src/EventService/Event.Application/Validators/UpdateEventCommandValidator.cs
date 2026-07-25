@@ -12,7 +12,7 @@ public sealed class UpdateEventCommandValidator : AbstractValidator<UpdateEventC
         RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.Address).NotNull();
         RuleFor(x => x.StartsAt)
-            .GreaterThan(DateTime.UtcNow)
+            .GreaterThan(DateTime.Now)
             .WithMessage("O evento deve iniciar numa data futura.");
         RuleFor(x => x.EndsAt)
             .GreaterThan(x => x.StartsAt)

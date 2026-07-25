@@ -72,7 +72,7 @@ public sealed class Event : AggregateRoot<EventId>
         if (Status != EventStatus.Draft)
             throw new DomainException("Only draft events can be published.");
 
-        if (StartsAt <= DateTime.UtcNow)
+        if (StartsAt <= DateTime.Now)
             throw new DomainException("Past events cannot be published.");
 
         Status = EventStatus.Published;

@@ -19,7 +19,7 @@ public sealed class CreateEventCommandValidator : AbstractValidator<CreateEventC
            .NotNull();
 
         RuleFor(x => x.StartsAt)
-            .GreaterThan(DateTime.UtcNow)
+            .GreaterThan(DateTime.Now)
             .WithMessage("O evento deve iniciar numa data futura.");
 
         RuleFor(x => x.EndsAt)

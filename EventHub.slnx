@@ -19,4 +19,10 @@
     <Project Path="src/IdentityService/Identity.Domain/Identity.Domain.csproj" />
     <Project Path="src/IdentityService/Identity.Infrastructure/Identity.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Services/Ticketing/">
+    <Project Path="src/TicketingService/Ticketing.Api/Ticketing.Api.csproj" />
+    <Project Path="src/TicketingService/Ticketing.Application/Ticketing.Application.csproj" />
+    <Project Path="src/TicketingService/Ticketing.Domain/Ticketing.Domain.csproj" />
+    <Project Path="src/TicketingService/Ticketing.Infrastructure/Ticketing.Infrastructure.csproj" />
+  </Folder>
 </Solution>
