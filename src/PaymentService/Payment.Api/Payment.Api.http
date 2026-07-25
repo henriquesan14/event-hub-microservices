@@ -1,0 +1,37 @@
+@Payment_Api_HostAddress = https://localhost:63576
+@token = paste-token-here
+@paymentId = 00000000-0000-0000-0000-000000000000
+@orderId = 00000000-0000-0000-0000-000000000000
+
+GET {{Payment_Api_HostAddress}}/api/payments/me
+Authorization: Bearer {{token}}
+
+###
+
+GET {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}
+Authorization: Bearer {{token}}
+
+###
+
+GET {{Payment_Api_HostAddress}}/api/payments/by-order/{{orderId}}
+Authorization: Bearer {{token}}
+
+###
+
+POST {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}/approve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "providerReference": "sandbox-transaction-001"
+}
+
+###
+
+POST {{Payment_Api_HostAddress}}/api/payments/{{paymentId}}/fail
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reason": "Payment declined"
+}

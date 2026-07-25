@@ -31,4 +31,10 @@
     <Project Path="src/OrderService/Order.Domain/Order.Domain.csproj" />
     <Project Path="src/OrderService/Order.Infrastructure/Order.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Services/Payment/">
+    <Project Path="src/PaymentService/Payment.Api/Payment.Api.csproj" />
+    <Project Path="src/PaymentService/Payment.Application/Payment.Application.csproj" />
+    <Project Path="src/PaymentService/Payment.Domain/Payment.Domain.csproj" />
+    <Project Path="src/PaymentService/Payment.Infrastructure/Payment.Infrastructure.csproj" />
+  </Folder>
 </Solution>

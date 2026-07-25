@@ -29,6 +29,8 @@ public static class DependencyInjection
         {
             x.AddConsumer<OrderCancelledConsumer>();
             x.AddConsumer<OrderExpiredConsumer>();
+            x.AddConsumer<PaymentApprovedConsumer>();
+            x.AddConsumer<PaymentFailedConsumer>();
             x.AddEntityFrameworkOutbox<TicketingDbContext>(outbox =>
             {
                 outbox.UsePostgres();
@@ -51,6 +53,20 @@ public static class DependencyInjection
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
                     endpoint.UseEntityFrameworkOutbox<TicketingDbContext>(context);
                     endpoint.ConfigureConsumer<OrderCancelledConsumer>(context);
+                });
+
+                cfg.ReceiveEndpoint("ticketing-payment-approved", endpoint =>
+                {
+                    endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
+                    endpoint.UseEntityFrameworkOutbox<TicketingDbContext>(context);
+                    endpoint.ConfigureConsumer<PaymentApprovedConsumer>(context);
+                });
+
+                cfg.ReceiveEndpoint("ticketing-payment-failed", endpoint =>
+                {
+                    endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
+                    endpoint.UseEntityFrameworkOutbox<TicketingDbContext>(context);
+                    endpoint.ConfigureConsumer<PaymentFailedConsumer>(context);
                 });
 
                 cfg.ReceiveEndpoint("ticketing-order-expired", endpoint =>

@@ -7,4 +7,5 @@ public sealed record OrderCreatedIntegrationEvent(
     Guid UserId,
     decimal Total,
     string Currency,
+    DateTime CreatedAt,
     DateTime ExpiresAt);

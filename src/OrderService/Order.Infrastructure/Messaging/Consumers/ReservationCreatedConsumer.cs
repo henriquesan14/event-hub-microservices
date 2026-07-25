@@ -31,6 +31,7 @@ public sealed class ReservationCreatedConsumer(IOrderRepository repository)
         order.CreatedBy = message.UserId;
         order.CreatedByName = message.UserName;
 
+        var createdAt = DateTime.Now;
         await repository.AddAsync(order, context.CancellationToken);
         await context.Publish(
             new OrderCreatedIntegrationEvent(
@@ -40,6 +41,7 @@ public sealed class ReservationCreatedConsumer(IOrderRepository repository)
                 order.UserId,
                 order.Total,
                 order.Currency,
+                createdAt,
                 order.ExpiresAt),
             publish => publish.CorrelationId = message.CorrelationId);
         await repository.SaveChangesAsync(context.CancellationToken);

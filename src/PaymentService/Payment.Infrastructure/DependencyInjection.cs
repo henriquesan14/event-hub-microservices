@@ -1,15 +1,15 @@
 using BuildingBlocks.Infrastructure;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Order.Application.Contracts;
-using Order.Infrastructure.Persistence;
-using Order.Infrastructure.Persistence.Repositories;
-using MassTransit;
-using Order.Infrastructure.Messaging.Consumers;
+using Payment.Application.Contracts;
+using Payment.Infrastructure.Messaging.Consumers;
+using Payment.Infrastructure.Persistence;
+using Payment.Infrastructure.Persistence.Repositories;
 
-namespace Order.Infrastructure;
+namespace Payment.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -18,20 +18,20 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddDefaultInterceptors();
-        services.AddDbContext<OrderDbContext>((sp, options) =>
+        services.AddDbContext<PaymentDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             options.UseNpgsql(configuration.GetConnectionString("DbConnection"));
         });
 
-        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<ReservationCreatedConsumer>();
-            x.AddConsumer<PaymentApprovedConsumer>();
-            x.AddConsumer<PaymentFailedConsumer>();
-            x.AddEntityFrameworkOutbox<OrderDbContext>(outbox =>
+            x.AddConsumer<OrderCreatedConsumer>();
+            x.AddConsumer<OrderCancelledConsumer>();
+            x.AddConsumer<OrderExpiredConsumer>();
+            x.AddEntityFrameworkOutbox<PaymentDbContext>(outbox =>
             {
                 outbox.UsePostgres();
                 outbox.UseBusOutbox();
@@ -48,28 +48,29 @@ public static class DependencyInjection
                         host.Password(configuration["RabbitMq:Password"] ?? "guest");
                     });
 
-                cfg.ReceiveEndpoint("order-reservation-created", endpoint =>
+                cfg.ReceiveEndpoint("payment-order-created", endpoint =>
                 {
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
-                    endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
-                    endpoint.ConfigureConsumer<ReservationCreatedConsumer>(context);
+                    endpoint.UseEntityFrameworkOutbox<PaymentDbContext>(context);
+                    endpoint.ConfigureConsumer<OrderCreatedConsumer>(context);
                 });
 
-                cfg.ReceiveEndpoint("order-payment-approved", endpoint =>
+                cfg.ReceiveEndpoint("payment-order-cancelled", endpoint =>
                 {
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
-                    endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
-                    endpoint.ConfigureConsumer<PaymentApprovedConsumer>(context);
+                    endpoint.UseEntityFrameworkOutbox<PaymentDbContext>(context);
+                    endpoint.ConfigureConsumer<OrderCancelledConsumer>(context);
                 });
 
-                cfg.ReceiveEndpoint("order-payment-failed", endpoint =>
+                cfg.ReceiveEndpoint("payment-order-expired", endpoint =>
                 {
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
-                    endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
-                    endpoint.ConfigureConsumer<PaymentFailedConsumer>(context);
+                    endpoint.UseEntityFrameworkOutbox<PaymentDbContext>(context);
+                    endpoint.ConfigureConsumer<OrderExpiredConsumer>(context);
                 });
             });
         });
+
         return services;
     }
 }
