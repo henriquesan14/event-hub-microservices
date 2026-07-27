@@ -1,0 +1,21 @@
+@Notification_Api_HostAddress = https://localhost:64576
+@token = paste-token-here
+@notificationId = 00000000-0000-0000-0000-000000000000
+
+GET {{Notification_Api_HostAddress}}/api/notifications/me
+Authorization: Bearer {{token}}
+
+###
+
+GET {{Notification_Api_HostAddress}}/api/notifications/unread-count
+Authorization: Bearer {{token}}
+
+###
+
+POST {{Notification_Api_HostAddress}}/api/notifications/{{notificationId}}/read
+Authorization: Bearer {{token}}
+
+###
+
+POST {{Notification_Api_HostAddress}}/api/notifications/read-all
+Authorization: Bearer {{token}}

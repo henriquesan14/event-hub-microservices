@@ -1,0 +1,33 @@
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+
+namespace Notification.Infrastructure.Persistence;
+
+public sealed class NotificationDbContext(
+    DbContextOptions<NotificationDbContext> options) : DbContext(options)
+{
+    public DbSet<Domain.Entities.Notification> Notifications =>
+        Set<Domain.Entities.Notification>();
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.ApplyConfigurationsFromAssembly(typeof(NotificationDbContext).Assembly);
+        builder.AddInboxStateEntity();
+        builder.AddOutboxMessageEntity();
+        builder.AddOutboxStateEntity();
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (entityType.ClrType.Namespace?.StartsWith("MassTransit", StringComparison.Ordinal) == true)
+                continue;
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    property.SetColumnType("timestamp without time zone");
+            }
+        }
+
+        base.OnModelCreating(builder);
+    }
+}

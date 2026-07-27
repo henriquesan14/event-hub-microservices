@@ -24,7 +24,7 @@ public sealed class CancelOrderCommandHandler(
         order.Cancel();
         await publishEndpoint.Publish(
             new OrderCancelledIntegrationEvent(
-                order.Id, order.Id, order.ReservationId),
+                order.Id, order.Id, order.ReservationId, order.UserId),
             context => context.CorrelationId = order.Id,
             ct);
         await repository.SaveChangesAsync(ct);
