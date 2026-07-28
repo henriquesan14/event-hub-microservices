@@ -1,12 +1,15 @@
 {
+  "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "Ticketing.Api": {
+    "https": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "scalar/v1",
+      "applicationUrl": "https://localhost:61576;http://localhost:61577",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:61576;http://localhost:61577"
+      }
     }
   }
 }

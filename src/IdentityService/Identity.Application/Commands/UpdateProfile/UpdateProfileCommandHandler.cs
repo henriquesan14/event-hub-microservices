@@ -6,10 +6,15 @@ using Identity.Application.Dtos;
 using Identity.Application.Errors;
 using Identity.Application.Extensions;
 using Identity.Domain.ValueObjects;
+using BuildingBlocks.Contracts.Users;
+using MassTransit;
 
 namespace Identity.Application.Commands.UpdateProfile;
 
-public sealed class UpdateProfileCommandHandler(IUserRepository userRepository, IUserContext userContext)
+public sealed class UpdateProfileCommandHandler(
+    IUserRepository userRepository,
+    IUserContext userContext,
+    IPublishEndpoint publishEndpoint)
     : ICommandHandler<UpdateProfileCommand, ResultT<UserResponse>>
 {
     public async Task<ResultT<UserResponse>> Handle(UpdateProfileCommand request, CancellationToken ct)
@@ -26,6 +31,14 @@ public sealed class UpdateProfileCommandHandler(IUserRepository userRepository, 
             return UserErrors.Conflict(request.Email);
 
         user.Update(request.Name, Email.Of(request.Email), user.Role);
+        await publishEndpoint.Publish(
+            new UserUpdatedIntegrationEvent(
+                user.Id.Value,
+                user.Id.Value,
+                user.Name,
+                user.Email.Value),
+            context => context.CorrelationId = user.Id.Value,
+            ct);
         await userRepository.SaveChangesAsync(ct);
         return user.ToDto();
     }

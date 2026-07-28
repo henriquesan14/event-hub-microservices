@@ -1,5 +1,6 @@
 using BuildingBlocks.Contracts.Orders;
 using BuildingBlocks.Contracts.Payments;
+using BuildingBlocks.Contracts.Users;
 using MassTransit;
 using Notification.Application.Contracts;
 using Notification.Domain.Enums;
@@ -12,7 +13,9 @@ public sealed class NotificationIntegrationEventConsumer(
       IConsumer<OrderCancelledIntegrationEvent>,
       IConsumer<OrderExpiredIntegrationEvent>,
       IConsumer<PaymentApprovedIntegrationEvent>,
-      IConsumer<PaymentFailedIntegrationEvent>
+      IConsumer<PaymentFailedIntegrationEvent>,
+      IConsumer<UserRegisteredIntegrationEvent>,
+      IConsumer<UserUpdatedIntegrationEvent>
 {
     public Task Consume(ConsumeContext<OrderCreatedIntegrationEvent> context) =>
         AddAsync(
@@ -59,6 +62,20 @@ public sealed class NotificationIntegrationEventConsumer(
             context.Message.PaymentId,
             context.CancellationToken);
 
+    public Task Consume(ConsumeContext<UserRegisteredIntegrationEvent> context) =>
+        UpsertRecipientAsync(
+            context.Message.UserId,
+            context.Message.Name,
+            context.Message.Email,
+            context.CancellationToken);
+
+    public Task Consume(ConsumeContext<UserUpdatedIntegrationEvent> context) =>
+        UpsertRecipientAsync(
+            context.Message.UserId,
+            context.Message.Name,
+            context.Message.Email,
+            context.CancellationToken);
+
     private async Task AddAsync(
         Guid userId,
         NotificationType type,
@@ -75,6 +92,29 @@ public sealed class NotificationIntegrationEventConsumer(
             resourceId);
         notification.CreatedBy = userId;
         await repository.AddAsync(notification, ct);
+        await repository.AddDeliveryAsync(
+            Domain.Entities.NotificationDelivery.Create(notification.Id, userId, DateTime.Now),
+            ct);
+        await repository.SaveChangesAsync(ct);
+    }
+
+    private async Task UpsertRecipientAsync(
+        Guid userId,
+        string name,
+        string email,
+        CancellationToken ct)
+    {
+        var recipient = await repository.GetRecipientAsync(userId, ct);
+        if (recipient is null)
+        {
+            recipient = Domain.Entities.NotificationRecipient.Create(userId, name, email);
+            await repository.AddRecipientAsync(recipient, ct);
+        }
+        else
+        {
+            recipient.Update(name, email);
+        }
+
         await repository.SaveChangesAsync(ct);
     }
 }

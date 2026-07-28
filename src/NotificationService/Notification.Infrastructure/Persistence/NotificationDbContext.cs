@@ -8,6 +8,10 @@ public sealed class NotificationDbContext(
 {
     public DbSet<Domain.Entities.Notification> Notifications =>
         Set<Domain.Entities.Notification>();
+    public DbSet<Domain.Entities.NotificationRecipient> NotificationRecipients =>
+        Set<Domain.Entities.NotificationRecipient>();
+    public DbSet<Domain.Entities.NotificationDelivery> NotificationDeliveries =>
+        Set<Domain.Entities.NotificationDelivery>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

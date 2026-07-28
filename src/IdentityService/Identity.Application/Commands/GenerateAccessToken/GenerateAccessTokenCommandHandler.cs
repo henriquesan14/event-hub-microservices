@@ -7,11 +7,14 @@ using Identity.Application.Errors;
 using Identity.Domain.Contracts;
 using Identity.Domain.Entities;
 using Identity.Domain.ValueObjects;
+using BuildingBlocks.Contracts.Users;
+using MassTransit;
 
 namespace Identity.Application.Commands.GenerateAccessToken;
 
 public sealed class GenerateAccessTokenCommandHandler(IUserRepository userRepository, ITokenService tokenService,
-    IPasswordCheck passwordCheck, IUserContext userContext) : ICommandHandler<GenerateAccessTokenCommand, ResultT<AuthResponse>>
+    IPasswordCheck passwordCheck, IUserContext userContext, IPublishEndpoint publishEndpoint)
+    : ICommandHandler<GenerateAccessTokenCommand, ResultT<AuthResponse>>
 {
     public async Task<ResultT<AuthResponse>> Handle(GenerateAccessTokenCommand request, CancellationToken ct)
     {
@@ -32,6 +35,14 @@ public sealed class GenerateAccessTokenCommandHandler(IUserRepository userReposi
         );
 
         user.AddRefreshToken(refreshToken);
+        await publishEndpoint.Publish(
+            new UserUpdatedIntegrationEvent(
+                user.Id.Value,
+                user.Id.Value,
+                user.Name,
+                user.Email.Value),
+            context => context.CorrelationId = user.Id.Value,
+            ct);
 
         await userRepository.SaveChangesAsync(ct);
 

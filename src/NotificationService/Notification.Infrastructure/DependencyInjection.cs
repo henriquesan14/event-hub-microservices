@@ -8,6 +8,7 @@ using Notification.Application.Contracts;
 using Notification.Infrastructure.Messaging.Consumers;
 using Notification.Infrastructure.Persistence;
 using Notification.Infrastructure.Persistence.Repositories;
+using Notification.Infrastructure.Email;
 
 namespace Notification.Infrastructure;
 
@@ -24,6 +25,18 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DbConnection"));
         });
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddOptions<SmtpOptions>()
+            .Bind(configuration.GetSection(SmtpOptions.SectionName))
+            .Validate(
+                options => !options.Enabled ||
+                           (!string.IsNullOrWhiteSpace(options.Host) &&
+                            !string.IsNullOrWhiteSpace(options.Username) &&
+                            !string.IsNullOrWhiteSpace(options.Password) &&
+                            !string.IsNullOrWhiteSpace(options.FromAddress)),
+                "SMTP Host, Username, Password and FromAddress are required when email delivery is enabled.")
+            .ValidateOnStart();
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddHostedService<EmailDeliveryWorker>();
 
         services.AddMassTransit(x =>
         {

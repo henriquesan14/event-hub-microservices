@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MassTransit;
 
 namespace Identity.Infrastructure;
 
@@ -33,6 +34,27 @@ public static class DependencyInjection
 
         services.AddSingleton<IPasswordCheck, PasswordService>();
         services.AddSingleton<IPasswordHash, PasswordService>();
+
+        services.AddMassTransit(x =>
+        {
+            x.AddEntityFrameworkOutbox<IdentityDbContext>(outbox =>
+            {
+                outbox.UsePostgres();
+                outbox.UseBusOutbox();
+            });
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(
+                    configuration["RabbitMq:Host"] ?? "localhost",
+                    configuration["RabbitMq:VirtualHost"] ?? "/",
+                    host =>
+                    {
+                        host.Username(configuration["RabbitMq:Username"] ?? "guest");
+                        host.Password(configuration["RabbitMq:Password"] ?? "guest");
+                    });
+            });
+        });
         return services;
     }
 }

@@ -7,10 +7,16 @@ using Identity.Application.Extensions;
 using Identity.Domain.Contracts;
 using Identity.Domain.Entities;
 using Identity.Domain.ValueObjects;
+using BuildingBlocks.Contracts.Users;
+using MassTransit;
 
 namespace Identity.Application.Commands.RegisterUser;
 
-public sealed class RegisterUserCommandHandler(IUserRepository userRepository, IPasswordHash passwordHash) : ICommandHandler<RegisterUserCommand, ResultT<UserResponse>>
+public sealed class RegisterUserCommandHandler(
+    IUserRepository userRepository,
+    IPasswordHash passwordHash,
+    IPublishEndpoint publishEndpoint)
+    : ICommandHandler<RegisterUserCommand, ResultT<UserResponse>>
 {
     public async Task<ResultT<UserResponse>> Handle(RegisterUserCommand request, CancellationToken ct)
     {
@@ -19,6 +25,14 @@ public sealed class RegisterUserCommandHandler(IUserRepository userRepository, I
 
         var user = User.CreateUser(UserId.New(), request.Name, Email.Of(request.Email), request.Password, passwordHash);
         await userRepository.AddAsync(user, ct);
+        await publishEndpoint.Publish(
+            new UserRegisteredIntegrationEvent(
+                user.Id.Value,
+                user.Id.Value,
+                user.Name,
+                user.Email.Value),
+            context => context.CorrelationId = user.Id.Value,
+            ct);
         await userRepository.SaveChangesAsync(ct);
 
         return user.ToDto();
