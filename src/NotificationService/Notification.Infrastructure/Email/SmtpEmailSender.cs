@@ -24,11 +24,22 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
             IsBodyHtml = false
         };
         mail.To.Add(new MailAddress(message.RecipientEmail, message.RecipientName));
-        mail.AlternateViews.Add(
-            AlternateView.CreateAlternateViewFromString(
-                message.HtmlBody,
-                Encoding.UTF8,
-                "text/html"));
+        var htmlView = AlternateView.CreateAlternateViewFromString(
+            message.HtmlBody,
+            Encoding.UTF8,
+            "text/html");
+        foreach (var attachment in message.InlineAttachments ?? [])
+        {
+            htmlView.LinkedResources.Add(new LinkedResource(
+                new MemoryStream(attachment.Content, writable: false),
+                attachment.MediaType)
+            {
+                ContentId = attachment.ContentId,
+                TransferEncoding =
+                    System.Net.Mime.TransferEncoding.Base64
+            });
+        }
+        mail.AlternateViews.Add(htmlView);
 
         using var client = new SmtpClient(_options.Host, _options.Port)
         {

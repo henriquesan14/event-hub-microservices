@@ -21,6 +21,8 @@ public sealed class UserContext : IUserContext
 
     public string? Name => User?.FindFirst("name")?.Value;
 
+    public bool IsInRole(string role) => User?.IsInRole(role) == true;
+
     public string? IpAddress
     {
         get

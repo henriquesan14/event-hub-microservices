@@ -43,7 +43,11 @@ public sealed class ReservationConfirmedConsumer(IAdmissionRepository repository
                 message.UserId,
                 message.EventId,
                 tickets.Count,
-                message.ConfirmedAt),
+                message.ConfirmedAt,
+                tickets.Select(ticket => new IssuedAdmissionTicket(
+                    ticket.Id,
+                    ticket.TicketName,
+                    ticket.Code)).ToList()),
             publish => publish.CorrelationId = message.CorrelationId);
         await repository.SaveChangesAsync(context.CancellationToken);
     }

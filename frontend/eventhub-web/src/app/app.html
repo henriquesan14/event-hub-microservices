@@ -1,0 +1,48 @@
+<header class="topbar">
+  <a class="brand" routerLink="/">
+    <span class="brand-mark">E</span>
+    <span>EventHub</span>
+  </a>
+
+  <nav aria-label="Navegação principal">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Eventos</a>
+    @if (auth.isAuthenticated()) {
+      <a routerLink="/minha-conta" routerLinkActive="active">Minha conta</a>
+      <a routerLink="/notificacoes" routerLinkActive="active">
+        Notificações
+      </a>
+    }
+  </nav>
+
+  <div class="topbar-actions">
+    @if (auth.isAuthenticated()) {
+      @if (auth.isAdmin() || auth.isOrganizer()) {
+        <a class="primary-button compact create-event" routerLink="/eventos/novo">Criar evento</a>
+      }
+      <details class="user-menu">
+        <summary>
+          <span class="avatar">{{ auth.user()?.name?.charAt(0) }}</span>
+          <span>{{ auth.user()?.name }}</span>
+          <span class="chevron">⌄</span>
+        </summary>
+        <div class="user-dropdown">
+          <a routerLink="/minha-conta">Minha conta</a>
+          <a routerLink="/meus-ingressos">Meus ingressos</a>
+          <button type="button" (click)="logout()">Sair</button>
+        </div>
+      </details>
+    } @else {
+      <a class="ghost-button" routerLink="/entrar">Entrar</a>
+      <a class="primary-button compact" routerLink="/cadastro">Criar conta</a>
+    }
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer>
+  <span>EventHub</span>
+  <span>Eventos que ficam na memória.</span>
+</footer>

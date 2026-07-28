@@ -18,7 +18,8 @@ public sealed class UpdateTicketTypeCommandHandler(
         var entity = await repository.GetTicketTypeAsync(request.Id, ct);
         if (entity is null) return TicketingErrors.TicketTypeNotFound(request.Id);
         if (userContext.UserId is not Guid userId) return TicketingErrors.Unauthorized();
-        if (entity.CreatedBy != userId) return TicketingErrors.TicketTypeForbidden();
+        if (!userContext.IsInRole("Admin") && entity.CreatedBy != userId)
+            return TicketingErrors.TicketTypeForbidden();
 
         entity.Update(
             request.Name, request.Description, request.Price, request.Currency,

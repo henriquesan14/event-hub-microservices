@@ -10,6 +10,8 @@ using EventsApplication.Commands.UpdateEvent;
 using EventsApplication.Queries.GetEventById;
 using FluentValidation;
 using MediatR;
+using Events.Domain.Enums;
+using System.Security.Claims;
 
 namespace Events.Api.Endpoints;
 
@@ -19,13 +21,18 @@ public sealed class EventModules : ICarterModule
     {
         var group = app.MapGroup("/api/events").RequireAuthorization();
 
-        group.MapPost("/", Create).RequireAuthorization();
+        group.MapPost("/", Create)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
         group.MapGet("/", GetEvents);
         group.MapGet("/{id:guid}", GetById);
-        group.MapPut("/{id:guid}", Update).RequireAuthorization();
-        group.MapPost("/{id:guid}/publish", Publish).RequireAuthorization();
-        group.MapPost("/{id:guid}/cancel", Cancel).RequireAuthorization();
-        group.MapDelete("/{id:guid}", Delete).RequireAuthorization();
+        group.MapPut("/{id:guid}", Update)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
+        group.MapPost("/{id:guid}/publish", Publish)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
+        group.MapPost("/{id:guid}/cancel", Cancel)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
+        group.MapDelete("/{id:guid}", Delete)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
     }
 
     private static async Task<IResult> Create(
@@ -46,17 +53,46 @@ public sealed class EventModules : ICarterModule
 
     private static async Task<IResult> GetEvents(
         [AsParameters] GetEventsQuery query,
+        ClaimsPrincipal user,
         ISender sender,
         CancellationToken ct)
     {
+        var isAdmin = user.IsInRole("Admin");
+        var isOrganizer = user.IsInRole("Organizer");
+        var userId = Guid.TryParse(
+            user.FindFirstValue(ClaimTypes.NameIdentifier),
+            out var parsedUserId)
+                ? parsedUserId
+                : (Guid?)null;
+
+        query = query with
+        {
+            OwnerId = isOrganizer ? userId : null,
+            IncludePublished = !isAdmin,
+            IncludeAll = isAdmin
+        };
+
         var result = await sender.Send(query, ct);
 
         return result.ToHttpResult();
     }
 
-    private static async Task<IResult> GetById(Guid id, ISender sender, CancellationToken ct)
+    private static async Task<IResult> GetById(
+        Guid id,
+        ClaimsPrincipal user,
+        ISender sender,
+        CancellationToken ct)
     {
-        var result = await sender.Send(new GetEventByIdQuery(id), ct);
+        var userId = Guid.TryParse(
+            user.FindFirstValue(ClaimTypes.NameIdentifier),
+            out var parsedUserId)
+                ? parsedUserId
+                : (Guid?)null;
+        var result = await sender.Send(new GetEventByIdQuery(
+            id,
+            UserId: userId,
+            CanManageOwn: user.IsInRole("Organizer"),
+            CanManageAll: user.IsInRole("Admin")), ct);
         return result.ToHttpResult();
     }
 

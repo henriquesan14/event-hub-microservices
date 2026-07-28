@@ -7,12 +7,16 @@ using Notification.Application.Contracts;
 using Notification.Domain.Enums;
 using Microsoft.Extensions.Options;
 using Notification.Infrastructure.Email;
+using System.Net;
+using System.Text;
+using QRCoder;
 
 namespace Notification.Infrastructure.Messaging.Consumers;
 
 public sealed class NotificationIntegrationEventConsumer(
     INotificationRepository repository,
-    IOptions<EmailLinksOptions> emailLinks)
+    IOptions<EmailLinksOptions> emailLinks,
+    IEmailSender emailSender)
     : IConsumer<OrderCreatedIntegrationEvent>,
       IConsumer<OrderCancelledIntegrationEvent>,
       IConsumer<OrderExpiredIntegrationEvent>,
@@ -123,8 +127,9 @@ public sealed class NotificationIntegrationEventConsumer(
             context.CancellationToken);
     }
 
-    public Task Consume(ConsumeContext<AdmissionTicketsIssuedIntegrationEvent> context) =>
-        AddAsync(
+    public async Task Consume(ConsumeContext<AdmissionTicketsIssuedIntegrationEvent> context)
+    {
+        await AddWithoutEmailDeliveryAsync(
             context.Message.UserId,
             NotificationType.TicketsIssued,
             "Ingressos disponíveis",
@@ -134,6 +139,17 @@ public sealed class NotificationIntegrationEventConsumer(
             context.Message.OrderId,
             context.CancellationToken);
 
+        var recipient = await repository.GetRecipientAsync(
+            context.Message.UserId,
+            context.CancellationToken);
+        if (recipient is null || !recipient.IsActive)
+            return;
+
+        await emailSender.SendAsync(
+            BuildTicketsEmail(recipient.Name, recipient.Email, context.Message),
+            context.CancellationToken);
+    }
+
     private Task AddAsync(
         Guid userId,
         NotificationType type,
@@ -142,6 +158,26 @@ public sealed class NotificationIntegrationEventConsumer(
         Guid resourceId,
         CancellationToken ct) =>
         AddAsync(userId, type, title, message, resourceId, null, ct);
+
+    private async Task AddWithoutEmailDeliveryAsync(
+        Guid userId,
+        NotificationType type,
+        string title,
+        string message,
+        Guid resourceId,
+        CancellationToken ct)
+    {
+        var notification = Domain.Entities.Notification.Create(
+            userId,
+            type,
+            title,
+            message,
+            resourceId,
+            actionUrl: null);
+        notification.CreatedBy = userId;
+        await repository.AddAsync(notification, ct);
+        await repository.SaveChangesAsync(ct);
+    }
 
     private async Task AddAsync(
         Guid userId,
@@ -188,5 +224,65 @@ public sealed class NotificationIntegrationEventConsumer(
         }
 
         await repository.SaveChangesAsync(ct);
+    }
+
+    private static EmailMessage BuildTicketsEmail(
+        string recipientName,
+        string recipientEmail,
+        AdmissionTicketsIssuedIntegrationEvent message)
+    {
+        var attachments = new List<EmailInlineAttachment>();
+        var ticketBlocks = new StringBuilder();
+        var textTickets = new StringBuilder();
+
+        foreach (var ticket in message.Tickets)
+        {
+            var contentId = $"ticket-{ticket.TicketId:N}";
+            var png = PngByteQRCodeHelper.GetQRCode(
+                ticket.Code,
+                QRCodeGenerator.ECCLevel.M,
+                12);
+            attachments.Add(new EmailInlineAttachment(contentId, "image/png", png));
+
+            ticketBlocks.Append($"""
+                <div style="margin:20px 0;padding:22px;border:1px solid #e4e4e7;border-radius:14px;text-align:center;">
+                  <p style="margin:0 0 14px;font-size:18px;font-weight:bold;color:#18181b;">{WebUtility.HtmlEncode(ticket.TicketName)}</p>
+                  <img src="cid:{contentId}" width="220" height="220" alt="QR Code do ingresso" style="display:block;width:220px;height:220px;margin:0 auto;" />
+                  <p style="margin:14px 0 0;font-size:12px;color:#71717a;">Apresente este QR Code na entrada</p>
+                </div>
+                """);
+            textTickets.AppendLine($"{ticket.TicketName}: {ticket.Code}");
+        }
+
+        var encodedName = WebUtility.HtmlEncode(recipientName);
+        var html = $"""
+            <!doctype html>
+            <html lang="pt-BR">
+            <body style="margin:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#18181b;">
+              <div style="max-width:620px;margin:0 auto;padding:32px 16px;">
+                <div style="background:#ffffff;border-radius:18px;padding:32px;">
+                  <p style="margin:0;color:#059669;font-weight:bold;">EVENTHUB</p>
+                  <h1 style="margin:12px 0 8px;font-size:28px;">Seus ingressos chegaram</h1>
+                  <p style="color:#52525b;line-height:1.6;">Olá, {encodedName}! Guarde este e-mail e apresente um QR Code por participante na entrada.</p>
+                  {ticketBlocks}
+                  <p style="margin:24px 0 0;font-size:12px;color:#71717a;">Esta é uma mensagem automática. Não compartilhe seus QR Codes.</p>
+                </div>
+              </div>
+            </body>
+            </html>
+            """;
+
+        var text =
+            $"Olá, {recipientName}!{Environment.NewLine}{Environment.NewLine}" +
+            $"Seus ingressos EventHub:{Environment.NewLine}{textTickets}" +
+            $"{Environment.NewLine}Não compartilhe estes códigos.";
+
+        return new EmailMessage(
+            recipientName,
+            recipientEmail,
+            "Seus ingressos estão disponíveis",
+            text,
+            html,
+            attachments);
     }
 }

@@ -4,4 +4,8 @@ using EventsApplication.Dtos;
 
 namespace EventsApplication.Queries.GetEventById;
 
-public sealed record GetEventByIdQuery(Guid Id) : IQuery<ResultT<EventDto>>;
+public sealed record GetEventByIdQuery(
+    Guid Id,
+    Guid? UserId = null,
+    bool CanManageOwn = false,
+    bool CanManageAll = false) : IQuery<ResultT<EventDto>>;

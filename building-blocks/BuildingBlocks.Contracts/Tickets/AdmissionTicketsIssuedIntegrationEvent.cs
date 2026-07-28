@@ -8,4 +8,10 @@ public sealed record AdmissionTicketsIssuedIntegrationEvent(
     Guid UserId,
     Guid EventId,
     int Quantity,
-    DateTime IssuedAt);
+    DateTime IssuedAt,
+    IReadOnlyList<IssuedAdmissionTicket> Tickets);
+
+public sealed record IssuedAdmissionTicket(
+    Guid TicketId,
+    string TicketName,
+    string Code);

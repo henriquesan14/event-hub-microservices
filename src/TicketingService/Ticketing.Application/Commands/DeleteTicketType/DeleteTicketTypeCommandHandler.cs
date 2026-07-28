@@ -16,7 +16,8 @@ public sealed class DeleteTicketTypeCommandHandler(
         var entity = await repository.GetTicketTypeAsync(request.Id, ct);
         if (entity is null) return TicketingErrors.TicketTypeNotFound(request.Id);
         if (userContext.UserId is not Guid userId) return TicketingErrors.Unauthorized();
-        if (entity.CreatedBy != userId) return TicketingErrors.TicketTypeForbidden();
+        if (!userContext.IsInRole("Admin") && entity.CreatedBy != userId)
+            return TicketingErrors.TicketTypeForbidden();
         if (entity.AvailableQuantity != entity.TotalQuantity)
             return Error.Validation("Ticketing.TicketInUse", "Ticket types with reservations or sales cannot be deleted");
 

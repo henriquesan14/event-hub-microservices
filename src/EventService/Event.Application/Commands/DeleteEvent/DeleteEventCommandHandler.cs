@@ -18,7 +18,7 @@ public sealed class DeleteEventCommandHandler(IEventRepository eventRepository, 
         var eventEntity = await eventRepository.GetByIdAsync(request.Id, ct);
         if (eventEntity is null)
             return EventErrors.NotFound(request.Id);
-        if (eventEntity.OrganizerId.Value != userId)
+        if (!userContext.IsInRole("Admin") && eventEntity.OrganizerId.Value != userId)
             return EventErrors.Forbidden();
         if (eventEntity.Status == EventStatus.Published)
             return Error.Validation("Event.DeletePublished", "A published event must be cancelled before deletion");

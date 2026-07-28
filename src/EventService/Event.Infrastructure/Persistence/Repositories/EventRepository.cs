@@ -25,11 +25,17 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
     }
 
     public async Task<int> CountAsync(string? title,
-        EventStatus? status, CancellationToken ct)
+        EventStatus? status,
+        Guid? ownerId,
+        bool includePublished,
+        bool includeAll,
+        CancellationToken ct)
     {
         var query = context.Events.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(title))
             query = query.Where(x => x.Title.Contains(title));
+
+        query = ApplyVisibility(query, ownerId, includePublished, includeAll);
 
         if (status is not null)
             query = query.Where(x => x.Status == status);
@@ -39,6 +45,9 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
 
     public async Task<IEnumerable<Event>> GetEvents(string? title,
         EventStatus? status,
+        Guid? ownerId,
+        bool includePublished,
+        bool includeAll,
         int page,
         int pageSize,
         CancellationToken ct)
@@ -47,6 +56,8 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
 
         if (!string.IsNullOrWhiteSpace(title))
             query = query.Where(x => x.Title.Contains(title));
+
+        query = ApplyVisibility(query, ownerId, includePublished, includeAll);
 
         if (status is not null)
             query = query.Where(x => x.Status == status);
@@ -58,6 +69,30 @@ public sealed class EventRepository(EventDbContext context) : IEventRepository
             .ToListAsync(ct);
 
         return items;
+    }
+
+    private static IQueryable<Event> ApplyVisibility(
+        IQueryable<Event> query,
+        Guid? ownerId,
+        bool includePublished,
+        bool includeAll)
+    {
+        if (includeAll)
+            return query;
+
+        if (ownerId is Guid id)
+        {
+            var organizerId = Events.Domain.ValueObjects.UserId.Of(id);
+            return includePublished
+                ? query.Where(x =>
+                    x.Status == EventStatus.Published ||
+                    x.OrganizerId == organizerId)
+                : query.Where(x => x.OrganizerId == organizerId);
+        }
+
+        return includePublished
+            ? query.Where(x => x.Status == EventStatus.Published)
+            : query.Where(_ => false);
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken ct)

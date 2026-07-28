@@ -20,7 +20,7 @@ public sealed class UpdateEventCommandHandler(IEventRepository eventRepository, 
         var eventEntity = await eventRepository.GetByIdAsync(request.Id, ct);
         if (eventEntity is null)
             return EventErrors.NotFound(request.Id);
-        if (eventEntity.OrganizerId.Value != userId)
+        if (!userContext.IsInRole("Admin") && eventEntity.OrganizerId.Value != userId)
             return EventErrors.Forbidden();
 
         var address = new Address(

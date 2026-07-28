@@ -10,8 +10,13 @@ public record GetEventsQueryHandler(IEventRepository eventRepository) : IQueryHa
 {
     public async Task<ResultT<PaginatedResult<EventDto>>> Handle(GetEventsQuery request, CancellationToken ct)
     {
-        var count = await eventRepository.CountAsync(request.Title, request.Status, ct);
-        var events = await eventRepository.GetEvents(request.Title, request.Status, request.PageNumber, request.PageSize, ct);
+        var count = await eventRepository.CountAsync(
+            request.Title, request.Status, request.OwnerId,
+            request.IncludePublished, request.IncludeAll, ct);
+        var events = await eventRepository.GetEvents(
+            request.Title, request.Status, request.OwnerId,
+            request.IncludePublished, request.IncludeAll,
+            request.PageNumber, request.PageSize, ct);
 
         return new PaginatedResult<EventDto>(
             request.PageNumber,

@@ -10,4 +10,10 @@ public sealed record EmailMessage(
     string RecipientEmail,
     string Subject,
     string TextBody,
-    string HtmlBody);
+    string HtmlBody,
+    IReadOnlyList<EmailInlineAttachment>? InlineAttachments = null);
+
+public sealed record EmailInlineAttachment(
+    string ContentId,
+    string MediaType,
+    byte[] Content);

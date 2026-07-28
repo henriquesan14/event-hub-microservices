@@ -10,10 +10,17 @@ public interface IEventRepository
     void Delete(Event entity);
     Task<IEnumerable<Event>> GetEvents(string? title,
         EventStatus? status,
+        Guid? ownerId,
+        bool includePublished,
+        bool includeAll,
         int page,
         int pageSize,
         CancellationToken ct);
     Task<int> CountAsync(string? title,
-        EventStatus? status, CancellationToken ct);
+        EventStatus? status,
+        Guid? ownerId,
+        bool includePublished,
+        bool includeAll,
+        CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }

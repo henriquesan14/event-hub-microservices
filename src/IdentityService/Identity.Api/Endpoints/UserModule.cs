@@ -3,6 +3,8 @@ using Carter;
 using FluentValidation;
 using Identity.Application.Commands.ChangePassword;
 using Identity.Application.Commands.UpdateProfile;
+using Identity.Application.Commands.ChangeUserRole;
+using Identity.Domain.Enums;
 using Identity.Application.Queries.GetCurrentUser;
 using MediatR;
 
@@ -18,6 +20,9 @@ public sealed class UserModule : ICarterModule
         group.MapGet("/", GetCurrentUser);
         group.MapPut("/", UpdateProfile);
         group.MapPut("/password", ChangePassword);
+
+        app.MapPut("/api/users/{id:guid}/role", ChangeRole)
+            .RequireAuthorization(policy => policy.RequireRole("Admin"));
     }
 
     private static async Task<IResult> GetCurrentUser(ISender sender, CancellationToken ct)
@@ -53,4 +58,18 @@ public sealed class UserModule : ICarterModule
         var result = await sender.Send(command, ct);
         return result.ToHttpResult();
     }
+
+    private static async Task<IResult> ChangeRole(
+        Guid id,
+        ChangeUserRoleRequest request,
+        ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(
+            new ChangeUserRoleCommand(id, request.Role),
+            ct);
+        return result.ToHttpResult();
+    }
 }
+
+public sealed record ChangeUserRoleRequest(UserRole Role);

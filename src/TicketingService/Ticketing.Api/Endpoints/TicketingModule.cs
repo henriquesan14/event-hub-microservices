@@ -21,9 +21,12 @@ public sealed class TicketingModule : ICarterModule
         var tickets = app.MapGroup("/api");
         tickets.MapGet("/events/{eventId:guid}/tickets", GetByEvent);
         tickets.MapGet("/tickets/{id:guid}", GetById);
-        tickets.MapPost("/events/{eventId:guid}/tickets", Create).RequireAuthorization();
-        tickets.MapPut("/tickets/{id:guid}", Update).RequireAuthorization();
-        tickets.MapDelete("/tickets/{id:guid}", Delete).RequireAuthorization();
+        tickets.MapPost("/events/{eventId:guid}/tickets", Create)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
+        tickets.MapPut("/tickets/{id:guid}", Update)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
+        tickets.MapDelete("/tickets/{id:guid}", Delete)
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Organizer"));
 
         tickets.MapPost("/tickets/{ticketTypeId:guid}/reservations", Reserve).RequireAuthorization();
         tickets.MapGet("/reservations/{id:guid}", GetReservation).RequireAuthorization();
