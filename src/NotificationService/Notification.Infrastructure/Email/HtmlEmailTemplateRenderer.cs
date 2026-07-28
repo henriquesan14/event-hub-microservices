@@ -65,6 +65,7 @@ public sealed class HtmlEmailTemplateRenderer : IEmailTemplateRenderer
             NotificationType.PaymentFailed => new("#DC2626", "!"),
             NotificationType.EmailConfirmation => new("#2563EB", "✉"),
             NotificationType.PasswordReset => new("#7C3AED", "🔒"),
+            NotificationType.TicketsIssued => new("#059669", "🎟️"),
             _ => new("#7C3AED", "•")
         };
 

@@ -43,4 +43,10 @@
     <Project Path="src/NotificationService/Notification.Domain/Notification.Domain.csproj" />
     <Project Path="src/NotificationService/Notification.Infrastructure/Notification.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Services/Admission/">
+    <Project Path="src/AdmissionService/Admission.Api/Admission.Api.csproj" />
+    <Project Path="src/AdmissionService/Admission.Application/Admission.Application.csproj" />
+    <Project Path="src/AdmissionService/Admission.Domain/Admission.Domain.csproj" />
+    <Project Path="src/AdmissionService/Admission.Infrastructure/Admission.Infrastructure.csproj" />
+  </Folder>
 </Solution>

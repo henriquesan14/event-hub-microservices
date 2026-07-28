@@ -1,6 +1,7 @@
 using BuildingBlocks.Contracts.Orders;
 using BuildingBlocks.Contracts.Payments;
 using BuildingBlocks.Contracts.Users;
+using BuildingBlocks.Contracts.Tickets;
 using MassTransit;
 using Notification.Application.Contracts;
 using Notification.Domain.Enums;
@@ -20,7 +21,8 @@ public sealed class NotificationIntegrationEventConsumer(
       IConsumer<UserRegisteredIntegrationEvent>,
       IConsumer<UserUpdatedIntegrationEvent>,
       IConsumer<UserEmailConfirmationRequestedIntegrationEvent>,
-      IConsumer<UserPasswordResetRequestedIntegrationEvent>
+      IConsumer<UserPasswordResetRequestedIntegrationEvent>,
+      IConsumer<AdmissionTicketsIssuedIntegrationEvent>
 {
     public Task Consume(ConsumeContext<OrderCreatedIntegrationEvent> context) =>
         AddAsync(
@@ -120,6 +122,17 @@ public sealed class NotificationIntegrationEventConsumer(
                 context.Message.Token),
             context.CancellationToken);
     }
+
+    public Task Consume(ConsumeContext<AdmissionTicketsIssuedIntegrationEvent> context) =>
+        AddAsync(
+            context.Message.UserId,
+            NotificationType.TicketsIssued,
+            "Ingressos disponíveis",
+            context.Message.Quantity == 1
+                ? "Seu ingresso foi emitido e já está disponível."
+                : $"Seus {context.Message.Quantity} ingressos foram emitidos e já estão disponíveis.",
+            context.Message.OrderId,
+            context.CancellationToken);
 
     private Task AddAsync(
         Guid userId,
