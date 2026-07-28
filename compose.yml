@@ -1,0 +1,244 @@
+name: eventhub
+
+x-api-environment: &api-environment
+  ASPNETCORE_ENVIRONMENT: Production
+  PORT: "8080"
+  TZ: ${TZ:-America/Sao_Paulo}
+  Database__MigrateOnStartup: "true"
+  Jwt__Secret: ${JWT_SECRET}
+  Jwt__Issuer: EventHub
+  Jwt__Audience: EventHub.Api
+  Jwt__AccessTokenExpirationInMinutes: "50"
+  Jwt__RefreshTokenExpirationInDays: "7"
+
+x-rabbit-environment: &rabbit-environment
+  RabbitMq__Host: rabbitmq
+  RabbitMq__VirtualHost: /
+  RabbitMq__Username: ${RABBITMQ_USER:-eventhub}
+  RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+x-api-dependencies: &api-dependencies
+  postgres:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      PGTZ: ${TZ:-America/Sao_Paulo}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          test "$$(psql -U postgres -d postgres -tAc
+          "SELECT count(*) FROM pg_database WHERE datname IN
+          ('IdentityDb','EventDb','TicketingDb','OrderDb','PaymentDb','AdmissionDb','NotificationDb')")"
+          = "7"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-eventhub}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  identity-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/IdentityService/Identity.Api/Identity.Api.csproj
+        SERVICE_DLL: Identity.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=IdentityDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+    depends_on: *api-dependencies
+    ports:
+      - "5165:8080"
+    restart: unless-stopped
+
+  event-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/EventService/Event.Api/Events.Api.csproj
+        SERVICE_DLL: Events.Api.dll
+    environment:
+      <<: *api-environment
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=EventDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5228:8080"
+    restart: unless-stopped
+
+  ticketing-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/TicketingService/Ticketing.Api/Ticketing.Api.csproj
+        SERVICE_DLL: Ticketing.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=TicketingDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+    depends_on: *api-dependencies
+    ports:
+      - "61577:8080"
+    restart: unless-stopped
+
+  order-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/OrderService/Order.Api/Order.Api.csproj
+        SERVICE_DLL: Order.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=OrderDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+    depends_on: *api-dependencies
+    ports:
+      - "52576:8080"
+    restart: unless-stopped
+
+  payment-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/PaymentService/Payment.Api/Payment.Api.csproj
+        SERVICE_DLL: Payment.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=PaymentDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+      Asaas__BaseUrl: https://api-sandbox.asaas.com/v3/
+      Asaas__ApiKey: ${ASAAS_API_KEY:-}
+      Asaas__WebhookToken: ${ASAAS_WEBHOOK_TOKEN:-}
+      Asaas__UserAgent: EventHub/1.0 (Docker)
+    depends_on: *api-dependencies
+    ports:
+      - "53576:8080"
+    restart: unless-stopped
+
+  admission-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/AdmissionService/Admission.Api/Admission.Api.csproj
+        SERVICE_DLL: Admission.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=AdmissionDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+    depends_on: *api-dependencies
+    ports:
+      - "50576:8080"
+    restart: unless-stopped
+
+  notification-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/NotificationService/Notification.Api/Notification.Api.csproj
+        SERVICE_DLL: Notification.Api.dll
+    environment:
+      <<: [*api-environment, *rabbit-environment]
+      ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=NotificationDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+      Email__Links__BaseUrl: http://localhost:4200
+      Email__Links__ConfirmEmailPath: /confirm-email
+      Email__Links__ResetPasswordPath: /reset-password
+      Email__Smtp__Enabled: ${SMTP_ENABLED:-false}
+      Email__Smtp__Host: ${SMTP_HOST:-sandbox.smtp.mailtrap.io}
+      Email__Smtp__Port: ${SMTP_PORT:-2525}
+      Email__Smtp__EnableSsl: ${SMTP_SSL:-true}
+      Email__Smtp__Username: ${SMTP_USERNAME:-}
+      Email__Smtp__Password: ${SMTP_PASSWORD:-}
+      Email__Smtp__FromAddress: ${SMTP_FROM_ADDRESS:-noreply@eventhub.local}
+      Email__Smtp__FromName: EventHub
+    depends_on: *api-dependencies
+    ports:
+      - "54576:8080"
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        PROJECT_PATH: src/ApiGateway/EventHub.Gateway/EventHub.Gateway.csproj
+        SERVICE_DLL: EventHub.Gateway.dll
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      PORT: "8080"
+      TZ: ${TZ:-America/Sao_Paulo}
+      Cors__AllowedOrigins__0: http://localhost:4200
+      ReverseProxy__Clusters__identity__Destinations__primary__Address: http://identity-api:8080/
+      ReverseProxy__Clusters__events__Destinations__primary__Address: http://event-api:8080/
+      ReverseProxy__Clusters__ticketing__Destinations__primary__Address: http://ticketing-api:8080/
+      ReverseProxy__Clusters__orders__Destinations__primary__Address: http://order-api:8080/
+      ReverseProxy__Clusters__payments__Destinations__primary__Address: http://payment-api:8080/
+      ReverseProxy__Clusters__admission__Destinations__primary__Address: http://admission-api:8080/
+      ReverseProxy__Clusters__notifications__Destinations__primary__Address: http://notification-api:8080/
+      ServiceHealth__identity: http://identity-api:8080/health
+      ServiceHealth__events: http://event-api:8080/health
+      ServiceHealth__ticketing: http://ticketing-api:8080/health
+      ServiceHealth__orders: http://order-api:8080/health
+      ServiceHealth__payments: http://payment-api:8080/health
+      ServiceHealth__admission: http://admission-api:8080/health
+      ServiceHealth__notifications: http://notification-api:8080/health
+    depends_on:
+      - identity-api
+      - event-api
+      - ticketing-api
+      - order-api
+      - payment-api
+      - admission-api
+      - notification-api
+    ports:
+      - "5050:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: frontend/eventhub-web
+      dockerfile: Dockerfile
+    depends_on:
+      - api-gateway
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:

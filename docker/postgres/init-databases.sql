@@ -1,0 +1,7 @@
+CREATE DATABASE "IdentityDb";
+CREATE DATABASE "EventDb";
+CREATE DATABASE "TicketingDb";
+CREATE DATABASE "OrderDb";
+CREATE DATABASE "PaymentDb";
+CREATE DATABASE "AdmissionDb";
+CREATE DATABASE "NotificationDb";
