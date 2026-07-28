@@ -1,0 +1,28 @@
+<section class="page">
+      <div class="heading">
+        <div><span class="eyebrow">Atualizações</span><h1>Notificações</h1></div>
+        @if (notifications().length > 0) {
+          <button class="ghost-button" type="button" (click)="readAll()">Marcar todas como lidas</button>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="skeleton"></div>
+      } @else if (notifications().length === 0) {
+        <div class="card empty-state">Nenhuma notificação por enquanto.</div>
+      } @else {
+        <div class="notification-list">
+          @for (notification of notifications(); track notification.id) {
+            <button class="notification card" [class.unread]="!notification.isRead" type="button"
+              (click)="read(notification)">
+              <span class="dot"></span>
+              <span class="content">
+                <strong>{{ notification.title }}</strong>
+                <span>{{ notification.message }}</span>
+                <small>{{ notification.createdAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+    </section>

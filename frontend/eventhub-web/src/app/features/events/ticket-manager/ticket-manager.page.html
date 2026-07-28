@@ -1,0 +1,68 @@
+<section class="page manager-page">
+      <a class="back" [routerLink]="['/eventos', eventId]">← Voltar ao evento</a>
+      <div class="heading">
+        <div>
+          <span class="eyebrow">Configuração</span>
+          <h1>Ingressos</h1>
+          @if (event()) { <p>{{ event()!.title }}</p> }
+        </div>
+      </div>
+
+      @if (error()) { <div class="alert error">{{ error() }}</div> }
+
+      <div class="manager-grid">
+        <form class="card ticket-form" (submit)="submit($event)">
+          <h2>{{ editingTicketId() ? 'Editar ingresso' : 'Novo tipo de ingresso' }}</h2>
+          <div class="field"><label for="name">Nome</label><input id="name" placeholder="Ex.: Inteira" [formField]="ticketForm.name" /></div>
+          <div class="field"><label for="description">Descrição</label><textarea id="description" [formField]="ticketForm.description"></textarea></div>
+          <div class="form-grid">
+            <div class="field"><label for="price">Preço</label><input id="price" type="number" step="0.01" [formField]="ticketForm.price" /></div>
+            <div class="field"><label for="currency">Moeda</label><input id="currency" [formField]="ticketForm.currency" /></div>
+            <div class="field"><label for="quantity">Quantidade</label><input id="quantity" type="number" [formField]="ticketForm.totalQuantity" /></div>
+          </div>
+          <div class="field"><label for="salesStart">Início das vendas</label><input id="salesStart" type="datetime-local" [formField]="ticketForm.salesStart" /></div>
+          <div class="field"><label for="salesEnd">Fim das vendas</label><input id="salesEnd" type="datetime-local" [formField]="ticketForm.salesEnd" /></div>
+          @if (editingTicketId()) {
+            <div class="active-field">
+              <input id="active" type="checkbox" [formField]="ticketForm.active" />
+              <label for="active">Ingresso ativo para venda</label>
+            </div>
+          }
+          <button class="primary-button full" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Salvando…' : editingTicketId() ? 'Salvar alterações' : 'Criar ingresso' }}
+          </button>
+          @if (editingTicketId()) {
+            <button class="ghost-button full cancel-edit" type="button" (click)="resetForm()">Cancelar edição</button>
+          }
+        </form>
+
+        <div>
+          <h2>Ingressos configurados</h2>
+          @if (loading()) {
+            <div class="skeleton"></div>
+          } @else if (tickets().length === 0) {
+            <div class="card empty-state">Nenhum ingresso criado.</div>
+          } @else {
+            <div class="ticket-list">
+              @for (ticket of tickets(); track ticket.id) {
+                <article class="card ticket-item">
+                  <div>
+                    <span class="status">{{ ticket.status }}</span>
+                    <h3>{{ ticket.name }}</h3>
+                    <p>{{ ticket.availableQuantity }} de {{ ticket.totalQuantity }} disponíveis</p>
+                    <small>Vendas: {{ ticket.salesStart | date:'dd/MM/yy HH:mm' }} – {{ ticket.salesEnd | date:'dd/MM/yy HH:mm' }}</small>
+                  </div>
+                  <div class="ticket-actions">
+                    <strong>{{ ticket.price | currency:ticket.currency }}</strong>
+                    <div>
+                      <button class="edit-link" type="button" (click)="edit(ticket)">Editar</button>
+                      <button class="danger-link" type="button" (click)="remove(ticket)">Excluir</button>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>

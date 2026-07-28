@@ -2,26 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { finalize } from 'rxjs';
-import { apiErrorMessage } from '../../core/api/api-error';
+import { apiErrorMessage } from '../../../core/api/api-error';
 
 @Component({
   imports: [FormField],
-  template: `
-    <section class="page"><div class="card form-card">
-      <span class="eyebrow">Recuperação</span>
-      <h1>Esqueceu a senha?</h1>
-      <p>Informe seu e-mail e enviaremos um link seguro.</p>
-      @if (message()) { <div class="alert success">{{ message() }}</div> }
-      @if (error()) { <div class="alert error">{{ error() }}</div> }
-      <form (submit)="submit($event)">
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input id="email" type="email" [formField]="forgotForm.email" />
-        </div>
-        <button class="primary-button" type="submit" [disabled]="loading()">Enviar link</button>
-      </form>
-    </div></section>
-  `,
+  templateUrl: './forgot-password.page.html',
+  styleUrl: './forgot-password.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForgotPasswordPage {

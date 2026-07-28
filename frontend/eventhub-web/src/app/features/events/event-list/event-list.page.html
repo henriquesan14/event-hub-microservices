@@ -1,0 +1,57 @@
+<section class="hero">
+      <div class="page">
+        <span class="eyebrow">Descubra. Viva. Lembre.</span>
+        <h1 class="display-title">A próxima história começa ao vivo.</h1>
+        <p class="lead">Encontre experiências marcantes, reserve seu lugar e leve o ingresso no bolso.</p>
+        <form class="search" (submit)="search($event)">
+          <input aria-label="Pesquisar eventos" placeholder="Busque por nome do evento" [value]="term()"
+            (input)="term.set($any($event.target).value)" />
+          <button class="primary-button" type="submit">Buscar</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="page events-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Agenda</span>
+          <h2>Eventos em destaque</h2>
+        </div>
+        @if (total() > 0) { <span>{{ total() }} eventos encontrados</span> }
+      </div>
+
+      @if (loading()) {
+        <div class="event-grid">
+          @for (item of [1,2,3]; track item) { <div class="skeleton"></div> }
+        </div>
+      } @else if (error()) {
+        <div class="card empty-state">
+          <h3>Não foi possível carregar os eventos</h3>
+          <p>{{ error() }}</p>
+          <a class="primary-button" routerLink="/entrar">Entrar na conta</a>
+        </div>
+      } @else if (events().length === 0) {
+        <div class="card empty-state"><h3>Nenhum evento encontrado</h3><p>Tente buscar por outro termo.</p></div>
+      } @else {
+        <div class="event-grid">
+          @for (event of events(); track event.id; let index = $index) {
+            <a class="event-card" [routerLink]="['/eventos', event.id]">
+              <div class="event-art" [class.alt]="index % 3 === 1" [class.dark]="index % 3 === 2">
+                <span>{{ event.address.city }}</span>
+                <strong>{{ event.startsAt | date:'dd' }}</strong>
+                <small>{{ event.startsAt | date:'MMM' }}</small>
+              </div>
+              <div class="event-copy">
+                <span class="status">{{ statusLabel(event.status) }}</span>
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.description }}</p>
+                <div class="event-meta">
+                  <span>{{ event.startsAt | date:'dd/MM/yyyy · HH:mm' }}</span>
+                  <span>{{ event.address.city }} · {{ event.address.state }}</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>

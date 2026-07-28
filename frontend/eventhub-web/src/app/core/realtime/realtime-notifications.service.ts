@@ -7,14 +7,7 @@ import {
 } from '@microsoft/signalr';
 import { AuthStore } from '../auth/auth.store';
 import { EventHubApi } from '../api/eventhub-api.service';
-
-export interface RealtimeNotificationMessage {
-  type: string;
-  resourceId: string;
-  title: string;
-  message: string;
-  actionUrl?: string;
-}
+import type { RealtimeNotificationMessage } from './realtime-notification-message.model';
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeNotifications {

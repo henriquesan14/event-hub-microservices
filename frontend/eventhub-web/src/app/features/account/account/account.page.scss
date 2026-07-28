@@ -1,0 +1,20 @@
+.account-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: 42px; }
+    .account-heading h1 { font-size: clamp(2.5rem, 6vw, 4.8rem); margin: 8px 0; }
+    .account-heading p { color: var(--muted); }
+    .stats { display: grid; gap: 18px; grid-template-columns: repeat(2, 1fr); }
+    .stats .card { display: grid; gap: 8px; padding: 24px; }
+    .stats span { color: var(--muted); font-size: .85rem; }
+    .stats strong { font-family: var(--display); font-size: 2rem; }
+    .profile-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; margin-top: 34px; }
+    .profile-card { padding: clamp(24px, 4vw, 34px); }
+    .profile-card h2 { font-size: 1.7rem; margin: 8px 0; }
+    .profile-card > p { color: var(--muted); margin-bottom: 24px; }
+    .account-section { margin-top: 52px; }
+    .section-title h2 { font-size: 2rem; }
+    .list { display: grid; gap: 12px; }
+    .list-item { align-items: center; display: flex; justify-content: space-between; padding: 22px 24px; }
+    .list-item h3 { margin: 10px 0 4px; }
+    .list-item small { color: var(--muted); }
+    .item-actions { align-items: end; display: grid; gap: 10px; justify-items: end; }
+    .preparing { color: var(--warning) !important; }
+    @media (max-width: 700px) { .account-heading { align-items: start; flex-direction: column; gap: 20px; } .stats, .profile-grid { grid-template-columns: 1fr; } .list-item { align-items: start; gap: 20px; } }

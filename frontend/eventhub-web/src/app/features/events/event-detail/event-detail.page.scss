@@ -1,0 +1,27 @@
+.detail-hero { background: #263a34; color: #f4f0e5; }
+    .detail-hero .page { padding-block: clamp(60px, 9vw, 110px); }
+    .detail-hero .eyebrow { display: block; margin-top: 50px; }
+    .back { color: #b9d9c3; font-weight: 700; }
+    .date-line { color: #c8d1cd; font-size: 1.06rem; margin-top: 28px; }
+    .manage-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .manage-actions a, .manage-actions button { border-radius: 999px; font-weight: 800; min-height: 42px; padding: 0 17px; }
+    .light-button { align-items: center; background: #f4f0e5; color: #263a34; display: inline-flex; }
+    .publish-button { background: #b9d9c3; border: 0; color: #194c32; }
+    .cancel-button { background: transparent; border: 1px solid #87958f; color: #f4f0e5; }
+    .detail-grid { display: grid; gap: clamp(30px, 7vw, 90px); grid-template-columns: 1.2fr .8fr; }
+    article h2, .tickets h2 { font-size: clamp(1.8rem, 4vw, 3rem); margin: 10px 0 20px; }
+    .description { color: var(--muted); font-size: 1.08rem; line-height: 1.8; white-space: pre-line; }
+    .location { display: grid; gap: 8px; margin-top: 34px; padding: 24px; }
+    .location span, .muted { color: var(--muted); }
+    .tickets { align-self: start; padding: 30px; position: sticky; top: 100px; }
+    .ticket-row { align-items: center; border-top: 1px solid var(--line); display: flex; justify-content: space-between; padding: 22px 0 10px; }
+    .ticket-row > div { display: grid; gap: 5px; }
+    .ticket-row small { color: var(--muted); }
+    .ticket-row > span { font-weight: 800; }
+    .ticket-row.sold-out { opacity: .62; }
+    .sold-out-label { color: var(--danger) !important; font-weight: 800; text-transform: uppercase; }
+    .sold-out-button { background: #efefeb; border-radius: 999px; color: var(--muted); font-weight: 800; margin-bottom: 22px; padding: 13px; text-align: center; }
+    .reserve-row { display: flex; gap: 10px; margin-bottom: 22px; }
+    .reserve-row select { border: 1px solid var(--line); border-radius: 999px; padding: 0 13px; }
+    .reserve-row .primary-button { flex: 1; }
+    @media (max-width: 760px) { .detail-grid { grid-template-columns: 1fr; } .tickets { position: static; } }

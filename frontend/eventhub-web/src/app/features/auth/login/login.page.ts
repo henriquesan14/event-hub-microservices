@@ -2,39 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { email, form, FormField, minLength, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { apiErrorMessage } from '../../core/api/api-error';
-import { AuthStore } from '../../core/auth/auth.store';
+import { apiErrorMessage } from '../../../core/api/api-error';
+import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
   imports: [FormField, RouterLink],
-  template: `
-    <section class="page">
-      <div class="card form-card">
-        <span class="eyebrow">Bem-vindo de volta</span>
-        <h1>Entre na sua conta</h1>
-        <p>Seus eventos, pedidos e ingressos em um só lugar.</p>
-
-        @if (error()) { <div class="alert error">{{ error() }}</div> }
-
-        <form (submit)="submit($event)">
-          <div class="field">
-            <label for="email">E-mail</label>
-            <input id="email" type="email" autocomplete="email" [formField]="loginForm.email" />
-          </div>
-          <div class="field">
-            <label for="password">Senha</label>
-            <input id="password" type="password" autocomplete="current-password" [formField]="loginForm.password" />
-          </div>
-          <div class="form-actions">
-            <a class="form-link" routerLink="/esqueci-senha">Esqueci minha senha</a>
-            <button class="primary-button" type="submit" [disabled]="loading()">
-              {{ loading() ? 'Entrando…' : 'Entrar' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-  `,
+  templateUrl: './login.page.html',
+  styleUrl: './login.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {

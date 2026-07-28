@@ -1,0 +1,23 @@
+.hero { background: #dcebdc; border-bottom: 1px solid var(--line); overflow: hidden; position: relative; }
+    .hero::after { background: var(--accent); border-radius: 50%; content: ''; height: 360px; opacity: .9; position: absolute; right: -120px; top: -120px; width: 360px; }
+    .hero .page { padding-block: clamp(70px, 10vw, 130px); position: relative; z-index: 1; }
+    .search { background: white; border: 1px solid var(--line); border-radius: 999px; display: flex; margin-top: 36px; max-width: 610px; padding: 7px; }
+    .search input { background: transparent; border: 0; flex: 1; min-width: 0; outline: 0; padding: 0 18px; }
+    .section-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: 28px; }
+    .section-heading h2 { font-size: clamp(2rem, 4vw, 3rem); margin: 6px 0 0; }
+    .section-heading > span { color: var(--muted); font-size: .9rem; }
+    .event-grid { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); }
+    .event-card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; color: var(--ink); overflow: hidden; transition: .25s ease; }
+    .event-card:hover { box-shadow: 0 20px 50px rgba(27, 41, 35, .1); transform: translateY(-5px); }
+    .event-art { background: #f0a184; color: #532315; display: grid; height: 210px; padding: 22px; place-content: center; position: relative; text-align: center; }
+    .event-art.alt { background: #b9d9c3; color: #194c32; }
+    .event-art.dark { background: #263a34; color: #e7f2ea; }
+    .event-art > span { font-size: .75rem; font-weight: 800; letter-spacing: .12em; position: absolute; right: 20px; text-transform: uppercase; top: 18px; }
+    .event-art strong { font-family: var(--display); font-size: 5rem; line-height: .8; }
+    .event-art small { font-size: 1rem; font-weight: 800; text-transform: uppercase; }
+    .event-copy { padding: 24px; }
+    .event-copy h3 { font-size: 1.35rem; margin: 14px 0 8px; }
+    .event-copy p { color: var(--muted); display: -webkit-box; line-height: 1.5; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .event-meta { border-top: 1px solid var(--line); color: var(--muted); display: grid; font-size: .82rem; gap: 5px; margin-top: 20px; padding-top: 18px; }
+    @media (max-width: 900px) { .event-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .event-grid { grid-template-columns: 1fr; } .hero::after { display: none; } .section-heading > span { display: none; } }

@@ -1,0 +1,50 @@
+<section class="page tickets-page">
+      <div class="heading">
+        <div>
+          <span class="eyebrow">EventHub Pass</span>
+          <h1>Meus ingressos</h1>
+          <p>Tenha seus QR Codes à mão para entrar sem complicação.</p>
+        </div>
+        <a class="primary-button" routerLink="/">Explorar eventos</a>
+      </div>
+
+      @if (loading()) {
+        <div class="ticket-grid">
+          @for (item of [1, 2]; track item) { <div class="skeleton"></div> }
+        </div>
+      } @else if (tickets().length === 0) {
+        <div class="card empty-state">
+          <h2>Você ainda não possui ingressos</h2>
+          <p>Seus QR Codes aparecerão aqui após a confirmação do pagamento.</p>
+          <a class="primary-button" routerLink="/">Encontrar eventos</a>
+        </div>
+      } @else {
+        <div class="ticket-grid">
+          @for (ticket of tickets(); track ticket.id) {
+            <article class="ticket" [class.used]="isUsed(ticket)" [class.cancelled]="isCancelled(ticket)">
+              <div class="ticket-info">
+                <span class="eyebrow">EventHub Pass</span>
+                <span class="ticket-status">{{ statusLabel(ticket) }}</span>
+                <h2>{{ ticket.ticketName }}</h2>
+                <small>Emitido em {{ ticket.issuedAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                @if (ticket.checkedInAt) {
+                  <small>Utilizado em {{ ticket.checkedInAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                }
+              </div>
+              <div class="ticket-code">
+                <div class="qr-frame">
+                  <qrcode
+                    [qrdata]="ticket.code"
+                    [width]="190"
+                    [margin]="1"
+                    [errorCorrectionLevel]="'M'"
+                    aria-label="QR Code do ingresso"
+                  />
+                </div>
+                <span>{{ isActive(ticket) ? 'Apresente este QR Code na entrada' : 'Este ingresso não pode mais ser utilizado' }}</span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>

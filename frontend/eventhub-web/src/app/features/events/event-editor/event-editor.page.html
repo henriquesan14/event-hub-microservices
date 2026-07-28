@@ -1,0 +1,70 @@
+<section class="page editor-page">
+      <a class="back" [routerLink]="eventId ? ['/eventos', eventId] : ['/']">← Voltar</a>
+      <div class="editor-heading">
+        <span class="eyebrow">Painel do organizador</span>
+        <h1>{{ eventId ? 'Editar evento' : 'Criar evento' }}</h1>
+        <p>Preencha os dados principais. Você poderá configurar os ingressos em seguida.</p>
+      </div>
+
+      @if (loadingEvent()) {
+        <div class="skeleton"></div>
+      } @else {
+        <form class="card editor-form" (submit)="submit($event)">
+          @if (error()) { <div class="alert error">{{ error() }}</div> }
+
+          <div class="field wide">
+            <label for="title">Nome do evento</label>
+            <input id="title" [formField]="eventForm.title" />
+          </div>
+          <div class="field wide">
+            <label for="description">Descrição</label>
+            <textarea id="description" [formField]="eventForm.description"></textarea>
+          </div>
+          <div class="field">
+            <label for="startsAt">Início</label>
+            <input id="startsAt" type="datetime-local" [formField]="eventForm.startsAt" />
+          </div>
+          <div class="field">
+            <label for="endsAt">Término</label>
+            <input id="endsAt" type="datetime-local" [formField]="eventForm.endsAt" />
+          </div>
+
+          <h2 class="wide">Local do evento</h2>
+          <div class="field wide">
+            <label for="street">Rua</label>
+            <input id="street" [formField]="eventForm.address.street" />
+          </div>
+          <div class="field">
+            <label for="number">Número</label>
+            <input id="number" [formField]="eventForm.address.number" />
+          </div>
+          <div class="field">
+            <label for="district">Bairro</label>
+            <input id="district" [formField]="eventForm.address.district" />
+          </div>
+          <div class="field">
+            <label for="city">Cidade</label>
+            <input id="city" [formField]="eventForm.address.city" />
+          </div>
+          <div class="field">
+            <label for="state">Estado</label>
+            <input id="state" [formField]="eventForm.address.state" />
+          </div>
+          <div class="field">
+            <label for="zipCode">CEP</label>
+            <input id="zipCode" [formField]="eventForm.address.zipCode" />
+          </div>
+          <div class="field">
+            <label for="country">País</label>
+            <input id="country" [formField]="eventForm.address.country" />
+          </div>
+
+          <div class="wide submit-row">
+            <a class="ghost-button" [routerLink]="eventId ? ['/eventos', eventId] : ['/']">Cancelar</a>
+            <button class="primary-button" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Salvando…' : eventId ? 'Salvar alterações' : 'Criar e configurar ingressos' }}
+            </button>
+          </div>
+        </form>
+      }
+    </section>

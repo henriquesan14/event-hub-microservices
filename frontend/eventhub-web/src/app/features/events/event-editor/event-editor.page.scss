@@ -1,0 +1,10 @@
+.editor-page { max-width: 980px; }
+    .back { color: var(--muted); font-weight: 700; }
+    .editor-heading { margin: 36px 0; }
+    .editor-heading h1 { font-size: clamp(2.5rem, 6vw, 4.6rem); margin: 8px 0; }
+    .editor-heading p { color: var(--muted); }
+    .editor-form { display: grid; gap: 4px 20px; grid-template-columns: 1fr 1fr; padding: clamp(24px, 5vw, 46px); }
+    .wide { grid-column: 1 / -1; }
+    .editor-form h2 { border-top: 1px solid var(--line); font-size: 1.5rem; margin: 20px 0; padding-top: 30px; }
+    .submit-row { display: flex; gap: 12px; justify-content: flex-end; margin-top: 22px; }
+    @media (max-width: 620px) { .editor-form { grid-template-columns: 1fr; } .wide { grid-column: auto; } .submit-row { align-items: stretch; flex-direction: column; } }

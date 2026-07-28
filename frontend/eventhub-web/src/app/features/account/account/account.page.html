@@ -1,0 +1,96 @@
+<section class="page">
+      <div class="account-heading">
+        <div>
+          <span class="eyebrow">Área do participante</span>
+          <h1>Olá, {{ auth.user()?.name }}.</h1>
+          <p>Acompanhe seus pedidos, pagamentos e ingressos.</p>
+        </div>
+        <a class="primary-button" routerLink="/">Explorar eventos</a>
+      </div>
+
+      <div class="stats">
+        <div class="card"><span>Pedidos</span><strong>{{ orders().length }}</strong></div>
+        <div class="card"><span>Pagamentos</span><strong>{{ payments().length }}</strong></div>
+      </div>
+
+      <section class="profile-grid">
+        <form class="card profile-card" (submit)="saveProfile($event)">
+          <span class="eyebrow">Perfil</span>
+          <h2>Dados pessoais</h2>
+          <p>Atualize o nome e o endereço de e-mail da sua conta.</p>
+          @if (profileError()) { <div class="alert error">{{ profileError() }}</div> }
+          @if (profileSuccess()) { <div class="alert success">{{ profileSuccess() }}</div> }
+          <div class="field">
+            <label for="profile-name">Nome</label>
+            <input id="profile-name" autocomplete="name" [formField]="profileForm.name" />
+          </div>
+          <div class="field">
+            <label for="profile-email">E-mail</label>
+            <input id="profile-email" type="email" autocomplete="email" [formField]="profileForm.email" />
+          </div>
+          <button class="primary-button" type="submit" [disabled]="savingProfile()">
+            {{ savingProfile() ? 'Salvando…' : 'Salvar perfil' }}
+          </button>
+        </form>
+
+        <form class="card profile-card" (submit)="savePassword($event)">
+          <span class="eyebrow">Segurança</span>
+          <h2>Alterar senha</h2>
+          <p>Confirme sua senha atual antes de escolher uma nova.</p>
+          @if (passwordError()) { <div class="alert error">{{ passwordError() }}</div> }
+          @if (passwordSuccess()) { <div class="alert success">{{ passwordSuccess() }}</div> }
+          <div class="field">
+            <label for="current-password">Senha atual</label>
+            <input id="current-password" type="password" autocomplete="current-password"
+              [formField]="passwordForm.currentPassword" />
+          </div>
+          <div class="field">
+            <label for="new-password">Nova senha</label>
+            <input id="new-password" type="password" autocomplete="new-password"
+              [formField]="passwordForm.newPassword" />
+          </div>
+          <div class="field">
+            <label for="confirm-password">Confirme a nova senha</label>
+            <input id="confirm-password" type="password" autocomplete="new-password"
+              [formField]="passwordForm.confirmPassword" />
+          </div>
+          <button class="primary-button" type="submit" [disabled]="savingPassword()">
+            {{ savingPassword() ? 'Alterando…' : 'Alterar senha' }}
+          </button>
+        </form>
+      </section>
+
+      @if (loading()) {
+        <div class="skeleton"></div>
+      } @else {
+        <section class="account-section">
+          <div class="section-title"><h2>Pedidos recentes</h2></div>
+          @if (orders().length === 0) {
+            <div class="card empty-state">Você ainda não possui pedidos.</div>
+          } @else {
+            <div class="list">
+              @for (order of orders(); track order.id) {
+                <article class="card list-item">
+                  <div>
+                    <span class="status">{{ label(order.status, orderLabels) }}</span>
+                    <h3>{{ order.items[0]?.name || 'Pedido' }}</h3>
+                    <small>{{ order.createdAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                  </div>
+                  <div class="item-actions">
+                    <strong>{{ order.total | currency:order.currency }}</strong>
+                    @if (paymentForOrder(order.id); as payment) {
+                      @if (isPending(order.status) && isPaymentPending(payment.status)) {
+                        <a class="primary-button compact" [routerLink]="['/checkout', payment.id]">Pagar agora</a>
+                      }
+                    } @else if (isPending(order.status)) {
+                      <small class="preparing">Preparando pagamento…</small>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+      }
+    </section>
