@@ -16,7 +16,8 @@ namespace Notification.Infrastructure.Messaging.Consumers;
 public sealed class NotificationIntegrationEventConsumer(
     INotificationRepository repository,
     IOptions<EmailLinksOptions> emailLinks,
-    IEmailSender emailSender)
+    IEmailSender emailSender,
+    IRealtimeNotificationSender realtimeSender)
     : IConsumer<OrderCreatedIntegrationEvent>,
       IConsumer<OrderCancelledIntegrationEvent>,
       IConsumer<OrderExpiredIntegrationEvent>,
@@ -29,48 +30,55 @@ public sealed class NotificationIntegrationEventConsumer(
       IConsumer<AdmissionTicketsIssuedIntegrationEvent>
 {
     public Task Consume(ConsumeContext<OrderCreatedIntegrationEvent> context) =>
-        AddAsync(
+        AddAndNotifyRealtimeAsync(
             context.Message.UserId,
             NotificationType.OrderCreated,
             "Pedido criado",
             $"Seu pedido foi criado e aguarda pagamento até {context.Message.ExpiresAt:g}.",
             context.Message.OrderId,
+            "/minha-conta",
             context.CancellationToken);
 
     public Task Consume(ConsumeContext<OrderCancelledIntegrationEvent> context) =>
-        AddAsync(
+        AddAndNotifyRealtimeAsync(
             context.Message.UserId,
             NotificationType.OrderCancelled,
             "Pedido cancelado",
             "Seu pedido foi cancelado e os ingressos foram liberados.",
             context.Message.OrderId,
+            "/minha-conta",
             context.CancellationToken);
 
     public Task Consume(ConsumeContext<OrderExpiredIntegrationEvent> context) =>
-        AddAsync(
+        AddAndNotifyRealtimeAsync(
             context.Message.UserId,
             NotificationType.OrderExpired,
             "Pedido expirado",
             "O prazo para pagamento expirou e os ingressos foram liberados.",
             context.Message.OrderId,
+            "/minha-conta",
             context.CancellationToken);
 
-    public Task Consume(ConsumeContext<PaymentApprovedIntegrationEvent> context) =>
-        AddAsync(
+    public async Task Consume(ConsumeContext<PaymentApprovedIntegrationEvent> context)
+    {
+        await AddAndNotifyRealtimeAsync(
             context.Message.UserId,
             NotificationType.PaymentApproved,
             "Pagamento aprovado",
             $"Seu pagamento de {context.Message.Amount:N2} {context.Message.Currency} foi aprovado.",
             context.Message.PaymentId,
+            "/meus-ingressos",
             context.CancellationToken);
+    }
 
     public Task Consume(ConsumeContext<PaymentFailedIntegrationEvent> context) =>
-        AddAsync(
+        AddAndNotifyRealtimeAsync(
             context.Message.UserId,
             NotificationType.PaymentFailed,
             "Pagamento não aprovado",
             $"Não foi possível concluir o pagamento: {context.Message.Reason}.",
             context.Message.PaymentId,
+            "/minha-conta",
             context.CancellationToken);
 
     public Task Consume(ConsumeContext<UserRegisteredIntegrationEvent> context) =>
@@ -138,6 +146,16 @@ public sealed class NotificationIntegrationEventConsumer(
                 : $"Seus {context.Message.Quantity} ingressos foram emitidos e já estão disponíveis.",
             context.Message.OrderId,
             context.CancellationToken);
+        await realtimeSender.SendAsync(
+            context.Message.UserId,
+            NotificationType.TicketsIssued.ToString(),
+            "Ingressos disponíveis",
+            context.Message.Quantity == 1
+                ? "Seu ingresso foi emitido e já está disponível."
+                : $"Seus {context.Message.Quantity} ingressos foram emitidos e já estão disponíveis.",
+            context.Message.OrderId,
+            "/meus-ingressos",
+            context.CancellationToken);
 
         var recipient = await repository.GetRecipientAsync(
             context.Message.UserId,
@@ -158,6 +176,26 @@ public sealed class NotificationIntegrationEventConsumer(
         Guid resourceId,
         CancellationToken ct) =>
         AddAsync(userId, type, title, message, resourceId, null, ct);
+
+    private async Task AddAndNotifyRealtimeAsync(
+        Guid userId,
+        NotificationType type,
+        string title,
+        string message,
+        Guid resourceId,
+        string? actionUrl,
+        CancellationToken ct)
+    {
+        await AddAsync(userId, type, title, message, resourceId, ct);
+        await realtimeSender.SendAsync(
+            userId,
+            type.ToString(),
+            title,
+            message,
+            resourceId,
+            actionUrl,
+            ct);
+    }
 
     private async Task AddWithoutEmailDeliveryAsync(
         Guid userId,

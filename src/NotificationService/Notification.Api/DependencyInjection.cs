@@ -7,6 +7,7 @@ using Carter;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
+using Notification.Infrastructure.Realtime;
 
 namespace Notification.Api;
 
@@ -56,6 +57,7 @@ public static class DependencyInjection
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapCarter();
+        app.MapHub<NotificationHub>("/hubs/notifications");
         app.UseIpRateLimiting();
         app.UseHealthChecks("/health", new HealthCheckOptions
         {

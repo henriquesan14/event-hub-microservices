@@ -9,6 +9,7 @@ using Notification.Infrastructure.Messaging.Consumers;
 using Notification.Infrastructure.Persistence;
 using Notification.Infrastructure.Persistence.Repositories;
 using Notification.Infrastructure.Email;
+using Notification.Infrastructure.Realtime;
 
 namespace Notification.Infrastructure;
 
@@ -25,6 +26,8 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DbConnection"));
         });
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddSignalR();
+        services.AddScoped<IRealtimeNotificationSender, SignalRNotificationSender>();
         services.AddOptions<SmtpOptions>()
             .Bind(configuration.GetSection(SmtpOptions.SectionName))
             .Validate(

@@ -39,9 +39,25 @@ nav {
 }
 
 nav a {
+  align-items: center;
   color: var(--muted);
+  display: inline-flex;
   font-size: .92rem;
   font-weight: 700;
+}
+
+.notification-badge {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 999px;
+  color: white;
+  display: inline-flex;
+  font-size: .65rem;
+  height: 19px;
+  justify-content: center;
+  margin-left: 6px;
+  min-width: 19px;
+  padding-inline: 5px;
 }
 
 nav a.active,
@@ -140,6 +156,66 @@ footer span:first-child {
   font-weight: 800;
 }
 
+.realtime-toast {
+  align-items: start;
+  animation: toast-in .28s ease-out;
+  background: #173f2d;
+  border: 1px solid #2f684d;
+  border-radius: 18px;
+  bottom: 24px;
+  box-shadow: 0 20px 55px rgba(12, 35, 25, .28);
+  color: white;
+  display: grid;
+  gap: 13px;
+  grid-template-columns: auto 1fr auto;
+  max-width: 410px;
+  padding: 18px;
+  position: fixed;
+  right: 24px;
+  z-index: 100;
+}
+
+.toast-icon {
+  align-items: center;
+  background: #b9e3ca;
+  border-radius: 50%;
+  color: #173f2d;
+  display: flex;
+  font-weight: 900;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.realtime-toast strong {
+  font-family: var(--display);
+}
+
+.realtime-toast p {
+  color: #c8dacf;
+  font-size: .88rem;
+  line-height: 1.45;
+  margin: 5px 0 9px;
+}
+
+.realtime-toast a {
+  color: #b9e3ca;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.realtime-toast > button {
+  background: none;
+  border: 0;
+  color: #c8dacf;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
 @media (max-width: 760px) {
   .topbar {
     grid-template-columns: 1fr auto;
@@ -158,5 +234,12 @@ footer span:first-child {
   footer {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .realtime-toast {
+    bottom: 14px;
+    left: 14px;
+    max-width: none;
+    right: 14px;
   }
 }

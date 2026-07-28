@@ -3,5 +3,11 @@
     "target": "http://localhost:5050",
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+  "/hubs": {
+    "target": "http://localhost:5050",
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "debug"
   }
 }

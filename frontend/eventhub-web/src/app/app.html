@@ -10,6 +10,9 @@
       <a routerLink="/minha-conta" routerLinkActive="active">Minha conta</a>
       <a routerLink="/notificacoes" routerLinkActive="active">
         Notificações
+        @if (realtime.unreadCount() > 0) {
+          <span class="notification-badge">{{ realtime.unreadCount() > 99 ? '99+' : realtime.unreadCount() }}</span>
+        }
       </a>
     }
   </nav>
@@ -41,6 +44,20 @@
 <main>
   <router-outlet />
 </main>
+
+@if (realtime.toast(); as toast) {
+  <aside class="realtime-toast" role="status" aria-live="polite">
+    <span class="toast-icon">✓</span>
+    <div>
+      <strong>{{ toast.title }}</strong>
+      <p>{{ toast.message }}</p>
+      @if (toast.actionUrl) {
+        <a [routerLink]="toast.actionUrl" (click)="realtime.dismiss()">Ver detalhes</a>
+      }
+    </div>
+    <button type="button" aria-label="Fechar notificação" (click)="realtime.dismiss()">×</button>
+  </aside>
+}
 
 <footer>
   <span>EventHub</span>
