@@ -41,6 +41,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(m => m.Email)
             .IsUnique();
 
+        builder.Property(u => u.EmailConfirmationTokenHash).HasMaxLength(64);
+        builder.HasIndex(u => u.EmailConfirmationTokenHash).IsUnique();
+        builder.Property(u => u.PasswordResetTokenHash).HasMaxLength(64);
+        builder.HasIndex(u => u.PasswordResetTokenHash).IsUnique();
+
         builder.Metadata
             .FindNavigation(nameof(User.RefreshTokens))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);

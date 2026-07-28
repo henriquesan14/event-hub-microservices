@@ -15,4 +15,7 @@
     <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\Notification.Application\Notification.Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Email\Templates\*.html" />
+  </ItemGroup>
 </Project>

@@ -17,5 +17,6 @@ public sealed class NotificationConfiguration
         builder.Property(x => x.Title).HasMaxLength(200);
         builder.Property(x => x.Message).HasMaxLength(1000);
         builder.Property(x => x.ResourceId).IsRequired();
+        builder.Property(x => x.ActionUrl).HasMaxLength(2000);
     }
 }

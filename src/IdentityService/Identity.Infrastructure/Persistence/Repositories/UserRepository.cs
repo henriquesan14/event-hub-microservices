@@ -29,6 +29,20 @@ public sealed class UserRepository(IdentityDbContext context) : IUserRepository
         return await context.Set<User>().FirstOrDefaultAsync(u => u.Email == Email.Of(email), ct);
     }
 
+    public Task<User?> GetByEmailConfirmationTokenHashAsync(
+        string tokenHash,
+        CancellationToken ct) =>
+        context.Set<User>().FirstOrDefaultAsync(
+            user => user.EmailConfirmationTokenHash == tokenHash,
+            ct);
+
+    public Task<User?> GetByPasswordResetTokenHashAsync(
+        string tokenHash,
+        CancellationToken ct) =>
+        context.Set<User>().FirstOrDefaultAsync(
+            user => user.PasswordResetTokenHash == tokenHash,
+            ct);
+
     public async Task<RefreshToken?> GetByRefreshTokenAsync(string token, CancellationToken ct)
     {
         return await context.Set<RefreshToken>()

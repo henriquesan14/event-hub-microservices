@@ -2,4 +2,11 @@
 
 namespace Identity.Application.Dtos;
 
-public sealed record UserResponse(Guid Id, string Name, string Email, UserRole Role, DateTime? CreatedAt, string? CreatedByName);
+public sealed record UserResponse(
+    Guid Id,
+    string Name,
+    string Email,
+    UserRole Role,
+    bool EmailConfirmed,
+    DateTime? CreatedAt,
+    string? CreatedByName);

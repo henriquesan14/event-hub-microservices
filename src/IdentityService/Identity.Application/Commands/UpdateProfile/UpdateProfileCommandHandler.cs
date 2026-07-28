@@ -8,6 +8,7 @@ using Identity.Application.Extensions;
 using Identity.Domain.ValueObjects;
 using BuildingBlocks.Contracts.Users;
 using MassTransit;
+using Identity.Application.Security;
 
 namespace Identity.Application.Commands.UpdateProfile;
 
@@ -26,7 +27,9 @@ public sealed class UpdateProfileCommandHandler(
         if (user is null)
             return UserErrors.NotFound(userId);
 
-        if (!string.Equals(user.Email.Value, request.Email, StringComparison.OrdinalIgnoreCase) &&
+        var emailChanged =
+            !string.Equals(user.Email.Value, request.Email, StringComparison.OrdinalIgnoreCase);
+        if (emailChanged &&
             await userRepository.EmailExistsAsync(request.Email, ct))
             return UserErrors.Conflict(request.Email);
 
@@ -39,6 +42,22 @@ public sealed class UpdateProfileCommandHandler(
                 user.Email.Value),
             context => context.CorrelationId = user.Id.Value,
             ct);
+        if (emailChanged)
+        {
+            var token = AccountTokenGenerator.Generate();
+            var expiresAt = DateTime.Now.AddHours(24);
+            user.RequestEmailConfirmation(AccountTokenGenerator.Hash(token), expiresAt);
+            await publishEndpoint.Publish(
+                new UserEmailConfirmationRequestedIntegrationEvent(
+                    user.Id.Value,
+                    user.Id.Value,
+                    user.Name,
+                    user.Email.Value,
+                    token,
+                    expiresAt),
+                context => context.CorrelationId = user.Id.Value,
+                ct);
+        }
         await userRepository.SaveChangesAsync(ct);
         return user.ToDto();
     }

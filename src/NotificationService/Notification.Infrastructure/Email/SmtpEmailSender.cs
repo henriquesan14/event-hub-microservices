@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using Microsoft.Extensions.Options;
 using Notification.Application.Contracts;
 
@@ -17,10 +18,17 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
         {
             From = new MailAddress(_options.FromAddress, _options.FromName),
             Subject = message.Subject,
-            Body = message.Body,
+            SubjectEncoding = Encoding.UTF8,
+            Body = message.TextBody,
+            BodyEncoding = Encoding.UTF8,
             IsBodyHtml = false
         };
         mail.To.Add(new MailAddress(message.RecipientEmail, message.RecipientName));
+        mail.AlternateViews.Add(
+            AlternateView.CreateAlternateViewFromString(
+                message.HtmlBody,
+                Encoding.UTF8,
+                "text/html"));
 
         using var client = new SmtpClient(_options.Host, _options.Port)
         {

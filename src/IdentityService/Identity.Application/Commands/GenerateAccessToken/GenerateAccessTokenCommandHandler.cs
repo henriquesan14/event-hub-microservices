@@ -23,6 +23,7 @@ public sealed class GenerateAccessTokenCommandHandler(IUserRepository userReposi
 
         var canLogin = user.CanUserLogin(request.Password, passwordCheck);
         if (!canLogin) return AuthErrors.Unauthorized();
+        if (!user.EmailConfirmed) return AuthErrors.EmailNotConfirmed();
 
         var tokenResponse = tokenService.GenerateAccessToken(user);
 

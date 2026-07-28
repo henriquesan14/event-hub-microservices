@@ -12,6 +12,7 @@ public static class UserExtensions
             user.Name,
             user.Email.Value,
             user.Role,
+            user.EmailConfirmed,
             user.CreatedAt,
             user.CreatedByName
         );

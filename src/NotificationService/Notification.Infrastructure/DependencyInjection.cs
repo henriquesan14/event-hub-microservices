@@ -36,6 +36,9 @@ public static class DependencyInjection
                 "SMTP Host, Username, Password and FromAddress are required when email delivery is enabled.")
             .ValidateOnStart();
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddOptions<EmailLinksOptions>()
+            .Bind(configuration.GetSection(EmailLinksOptions.SectionName));
+        services.AddSingleton<IEmailTemplateRenderer, HtmlEmailTemplateRenderer>();
         services.AddHostedService<EmailDeliveryWorker>();
 
         services.AddMassTransit(x =>

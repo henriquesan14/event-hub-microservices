@@ -27,6 +27,13 @@ public sealed class User : AggregateRoot<UserId>
 
     public void Update(string name, Email email, UserRole role)
     {
+        if (Email != email)
+        {
+            EmailConfirmed = false;
+            EmailConfirmationTokenHash = null;
+            EmailConfirmationTokenExpiresAt = null;
+        }
+
         Name = name;
         Email = email;
         Role = role;
@@ -37,6 +44,11 @@ public sealed class User : AggregateRoot<UserId>
     public Email Email { get; private set; } = default!;
     public string PasswordHash { get; private set; } = default!;
     public UserRole Role { get; private set; } = default!;
+    public bool EmailConfirmed { get; private set; }
+    public string? EmailConfirmationTokenHash { get; private set; }
+    public DateTime? EmailConfirmationTokenExpiresAt { get; private set; }
+    public string? PasswordResetTokenHash { get; private set; }
+    public DateTime? PasswordResetTokenExpiresAt { get; private set; }
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens =>
         _refreshTokens.AsReadOnly();
@@ -67,6 +79,50 @@ public sealed class User : AggregateRoot<UserId>
             return false;
 
         PasswordHash = hasher.HashPassword(newPassword);
+        return true;
+    }
+
+    public void RequestEmailConfirmation(string tokenHash, DateTime expiresAt)
+    {
+        EmailConfirmationTokenHash = tokenHash;
+        EmailConfirmationTokenExpiresAt = expiresAt;
+    }
+
+    public bool ConfirmEmail(string tokenHash, DateTime now)
+    {
+        if (EmailConfirmed)
+            return true;
+        if (EmailConfirmationTokenHash != tokenHash ||
+            EmailConfirmationTokenExpiresAt is null ||
+            EmailConfirmationTokenExpiresAt < now)
+            return false;
+
+        EmailConfirmed = true;
+        EmailConfirmationTokenHash = null;
+        EmailConfirmationTokenExpiresAt = null;
+        return true;
+    }
+
+    public void RequestPasswordReset(string tokenHash, DateTime expiresAt)
+    {
+        PasswordResetTokenHash = tokenHash;
+        PasswordResetTokenExpiresAt = expiresAt;
+    }
+
+    public bool ResetPassword(
+        string tokenHash,
+        string newPassword,
+        DateTime now,
+        IPasswordHash hasher)
+    {
+        if (PasswordResetTokenHash != tokenHash ||
+            PasswordResetTokenExpiresAt is null ||
+            PasswordResetTokenExpiresAt < now)
+            return false;
+
+        PasswordHash = hasher.HashPassword(newPassword);
+        PasswordResetTokenHash = null;
+        PasswordResetTokenExpiresAt = null;
         return true;
     }
 }

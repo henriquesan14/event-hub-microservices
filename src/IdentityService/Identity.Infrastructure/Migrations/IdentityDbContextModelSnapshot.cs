@@ -98,6 +98,16 @@ namespace Identity.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Email");
 
+                    b.Property<DateTime?>("EmailConfirmationTokenExpiresAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("EmailConfirmationTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("timestamp");
 
@@ -114,6 +124,13 @@ namespace Identity.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<DateTime?>("PasswordResetTokenExpiresAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("PasswordResetTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -122,6 +139,12 @@ namespace Identity.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("EmailConfirmationTokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("PasswordResetTokenHash")
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);

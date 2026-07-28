@@ -21,6 +21,9 @@ public static class AuthErrors
     public static Error InvalidVerifiedToken() =>
         Error.AccessUnAuthorized("Auth.Unauthorized", $"Token de verificação inválido");
 
+    public static Error EmailNotConfirmed() =>
+        Error.AccessForbidden("Auth.EmailNotConfirmed", "Confirme seu e-mail antes de entrar");
+
     public static Error UserEmailNotFound(string email) =>
         Error.NotFound("Auth.Unauthorized", $"User with {email} not found");
 }

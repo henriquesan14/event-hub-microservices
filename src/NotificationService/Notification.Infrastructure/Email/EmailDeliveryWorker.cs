@@ -47,6 +47,8 @@ public sealed class EmailDeliveryWorker(
         using var scope = scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
         var sender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+        var templateRenderer =
+            scope.ServiceProvider.GetRequiredService<IEmailTemplateRenderer>();
         var deliveries = await repository.GetPendingDeliveriesAsync(
             DateTime.Now,
             Math.Max(_options.BatchSize, 1),
@@ -64,13 +66,11 @@ public sealed class EmailDeliveryWorker(
                 if (recipient is null || !recipient.IsActive)
                     throw new InvalidOperationException("Notification recipient is not available.");
 
-                await sender.SendAsync(
-                    new EmailMessage(
-                        recipient.Name,
-                        recipient.Email,
-                        notification.Title,
-                        notification.Message),
-                    ct);
+                var email = templateRenderer.Render(
+                    recipient.Name,
+                    recipient.Email,
+                    notification);
+                await sender.SendAsync(email, ct);
                 delivery.MarkSent(now);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)

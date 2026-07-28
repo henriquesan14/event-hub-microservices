@@ -13,7 +13,8 @@ public sealed class Notification : AggregateRoot<Guid>
         NotificationType type,
         string title,
         string message,
-        Guid resourceId)
+        Guid resourceId,
+        string? actionUrl)
     {
         Id = id;
         UserId = userId;
@@ -21,6 +22,7 @@ public sealed class Notification : AggregateRoot<Guid>
         Title = title;
         Message = message;
         ResourceId = resourceId;
+        ActionUrl = actionUrl;
     }
 
     public Guid UserId { get; private set; }
@@ -28,6 +30,7 @@ public sealed class Notification : AggregateRoot<Guid>
     public string Title { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
     public Guid ResourceId { get; private set; }
+    public string? ActionUrl { get; private set; }
     public bool IsRead { get; private set; }
     public DateTime? ReadAt { get; private set; }
 
@@ -36,7 +39,8 @@ public sealed class Notification : AggregateRoot<Guid>
         NotificationType type,
         string title,
         string message,
-        Guid resourceId)
+        Guid resourceId,
+        string? actionUrl = null)
     {
         if (userId == Guid.Empty || resourceId == Guid.Empty)
             throw new DomainException("User and resource are required.");
@@ -49,7 +53,8 @@ public sealed class Notification : AggregateRoot<Guid>
             type,
             title.Trim(),
             message.Trim(),
-            resourceId);
+            resourceId,
+            string.IsNullOrWhiteSpace(actionUrl) ? null : actionUrl.Trim());
     }
 
     public void MarkAsRead(DateTime now)

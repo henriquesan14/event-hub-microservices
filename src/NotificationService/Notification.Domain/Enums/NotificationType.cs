@@ -6,5 +6,7 @@ public enum NotificationType
     OrderCancelled,
     OrderExpired,
     PaymentApproved,
-    PaymentFailed
+    PaymentFailed,
+    EmailConfirmation,
+    PasswordReset
 }
