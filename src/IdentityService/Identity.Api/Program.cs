@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Identity.Api;
 using Identity.Infrastructure;
 using Identity.Application;
 using Identity.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.identity");
 
 var configuration = builder.Configuration;
 

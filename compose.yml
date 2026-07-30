@@ -5,6 +5,8 @@ x-api-environment: &api-environment
   PORT: "8080"
   TZ: ${TZ:-America/Sao_Paulo}
   Database__MigrateOnStartup: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-lgtm:4317
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
   Jwt__Secret: ${JWT_SECRET}
   Jwt__Issuer: EventHub
   Jwt__Audience: EventHub.Api
@@ -18,12 +20,24 @@ x-rabbit-environment: &rabbit-environment
   RabbitMq__Password: ${RABBITMQ_PASSWORD}
 
 x-api-dependencies: &api-dependencies
+  grafana-lgtm:
+    condition: service_started
   postgres:
     condition: service_healthy
   rabbitmq:
     condition: service_healthy
 
 services:
+  grafana-lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - grafana-data:/data
+    restart: unless-stopped
+
   postgres:
     image: postgres:17-alpine
     environment:
@@ -93,6 +107,8 @@ services:
       <<: *api-environment
       ConnectionStrings__DbConnection: Host=postgres;Port=5432;Database=EventDb;Username=postgres;Password=${POSTGRES_PASSWORD}
     depends_on:
+      grafana-lgtm:
+        condition: service_started
       postgres:
         condition: service_healthy
     ports:
@@ -200,6 +216,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       PORT: "8080"
       TZ: ${TZ:-America/Sao_Paulo}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-lgtm:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       Cors__AllowedOrigins__0: http://localhost:4200
       ReverseProxy__Clusters__identity__Destinations__primary__Address: http://identity-api:8080/
       ReverseProxy__Clusters__events__Destinations__primary__Address: http://event-api:8080/
@@ -242,3 +260,4 @@ services:
 volumes:
   postgres-data:
   rabbitmq-data:
+  grafana-data:

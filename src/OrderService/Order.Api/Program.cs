@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Order.Api;
 using Order.Application;
 using Order.Infrastructure;
 using Order.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.orders");
 builder.ConfigureHostUrls();
 
 builder.Services

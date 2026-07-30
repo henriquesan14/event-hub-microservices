@@ -4,6 +4,7 @@
     <Project Path="building-blocks/BuildingBlocks.Contracts/BuildingBlocks.Contracts.csproj" />
     <Project Path="building-blocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
     <Project Path="building-blocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj" Id="7577b3a6-7e13-401e-b8f4-b5101f7647f5" />
+    <Project Path="building-blocks/BuildingBlocks.Observability/BuildingBlocks.Observability.csproj" />
     <Project Path="building-blocks/BuildingBlocks.SharedKernel/BuildingBlocks.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/Services/" />

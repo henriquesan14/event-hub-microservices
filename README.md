@@ -50,10 +50,31 @@ Endereços principais:
 | Saúde do Gateway | http://localhost:5050/health |
 | Saúde dos serviços | http://localhost:5050/health/services |
 | RabbitMQ Management | http://localhost:15672 |
+| Grafana | http://localhost:3000 |
 
 As APIs também ficam expostas individualmente nas portas usadas pelos perfis
 locais: Identity `5165`, Events `5228`, Ticketing `61577`, Orders `52576`,
 Payments `53576`, Admission `50576` e Notifications `54576`.
+
+## Observabilidade
+
+Todos os serviços e o Gateway enviam logs estruturados, traces distribuídos e
+métricas via OpenTelemetry para a stack Grafana LGTM:
+
+```text
+http://localhost:3000
+```
+
+No ambiente local, entre com usuário `admin` e senha `admin`. O Grafana pode
+solicitar a troca da senha no primeiro acesso.
+
+Os traces ignoram os endpoints `/health` para reduzir ruído. O nome do serviço,
+a versão e a instância do container são adicionados como atributos de recurso.
+A stack inclui Grafana, Loki, Tempo, Prometheus e um OpenTelemetry Collector. Os
+dados ficam persistidos no volume Docker `grafana-data`. Para consultar traces e
+o mapa entre serviços, abra **Explore**, selecione **Tempo** e use as consultas
+**Search**, **TraceQL** ou **Service Graph**. O mapa é formado à medida que
+requisições percorrem mais de um serviço.
 
 Para encerrar:
 

@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Ticketing.Api;
 using Ticketing.Application;
 using Ticketing.Infrastructure;
 using Ticketing.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.ticketing");
 builder.ConfigureHostUrls();
 
 builder.Services

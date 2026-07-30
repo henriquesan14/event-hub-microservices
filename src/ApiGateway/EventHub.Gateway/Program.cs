@@ -1,8 +1,10 @@
 using System.Threading.RateLimiting;
+using BuildingBlocks.Observability;
 using EventHub.Gateway;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.gateway");
 
 if (builder.Environment.IsProduction())
 {

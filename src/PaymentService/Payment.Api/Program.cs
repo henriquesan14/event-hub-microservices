@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Payment.Api;
 using Payment.Application;
 using Payment.Infrastructure;
 using Payment.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.payments");
 builder.ConfigureHostUrls();
 
 builder.Services

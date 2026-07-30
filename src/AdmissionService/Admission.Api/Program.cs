@@ -3,8 +3,10 @@ using Admission.Api;
 using Admission.Application;
 using Admission.Infrastructure;
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.admission");
 builder.ConfigureHostUrls();
 
 builder.Services

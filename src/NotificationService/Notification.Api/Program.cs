@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Notification.Api;
 using Notification.Application;
 using Notification.Infrastructure;
 using Notification.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.notifications");
 builder.ConfigureHostUrls();
 
 builder.Services

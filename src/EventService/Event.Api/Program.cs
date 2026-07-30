@@ -1,10 +1,12 @@
 using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Observability;
 using Events.Api;
 using Events.Infrastructure;
 using Events.Infrastructure.Persistence;
 using EventsApplication;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddDefaultObservability("eventhub.events");
 
 var configuration = builder.Configuration;
 
