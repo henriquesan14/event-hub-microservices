@@ -34,6 +34,8 @@ public sealed class ProcessAsaasWebhookCommandHandler(
             request.ProviderPaymentId,
             ct);
 
+        payment?.UpdateBillingType(request.BillingType);
+
         if (payment is not null && payment.Status == PaymentStatus.Pending)
         {
             if (ApprovedEvents.Contains(request.EventType))

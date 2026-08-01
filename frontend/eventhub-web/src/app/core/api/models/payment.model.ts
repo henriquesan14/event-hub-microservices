@@ -12,5 +12,8 @@ export interface Payment {
   billingType?: string;
   invoiceUrl?: string;
   failureReason?: string;
+  refundRequestedAt?: string;
+  refundedAt?: string;
+  refundReason?: string;
   createdAt?: string;
 }

@@ -31,7 +31,8 @@ public sealed class AsaasWebhookModule : ICarterModule
             new ProcessAsaasWebhookCommand(
                 request.Id,
                 request.Event,
-                request.Payment.Id),
+                request.Payment.Id,
+                request.Payment.BillingType),
             ct);
         return Results.Ok();
     }
@@ -52,5 +53,5 @@ public sealed class AsaasWebhookModule : ICarterModule
         string Event,
         AsaasWebhookPayment Payment);
 
-    private sealed record AsaasWebhookPayment(string Id);
+    private sealed record AsaasWebhookPayment(string Id, string? BillingType);
 }

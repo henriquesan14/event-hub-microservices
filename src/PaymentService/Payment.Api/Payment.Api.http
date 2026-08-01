@@ -40,6 +40,7 @@ Content-Type: application/json
   "id": "evt_example",
   "event": "PAYMENT_RECEIVED",
   "payment": {
-    "id": "pay_example"
+    "id": "pay_example",
+    "billingType": "PIX"
   }
 }

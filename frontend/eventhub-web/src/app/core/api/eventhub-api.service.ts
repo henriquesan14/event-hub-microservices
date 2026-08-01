@@ -105,6 +105,14 @@ export class EventHubApi {
     return this.http.get<Payment[]>('/api/payments/me');
   }
 
+  adminPayments() {
+    return this.http.get<Payment[]>('/api/payments');
+  }
+
+  refundPayment(paymentId: string, reason: string) {
+    return this.http.post<Payment>(`/api/payments/${paymentId}/refund`, { reason });
+  }
+
   checkout(paymentId: string, body: {
     name: string;
     email: string;

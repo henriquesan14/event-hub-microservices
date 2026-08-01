@@ -6,6 +6,7 @@ using Payment.Application.Commands.RefundPayment;
 using Payment.Application.Queries.GetMyPayments;
 using Payment.Application.Queries.GetPayment;
 using Payment.Application.Queries.GetPaymentByOrder;
+using Payment.Application.Queries.GetPayments;
 
 namespace Payment.Api.Endpoints;
 
@@ -15,6 +16,8 @@ public sealed class PaymentModule : ICarterModule
     {
         var group = app.MapGroup("/api/payments").RequireAuthorization();
         group.MapGet("/me", GetMine);
+        group.MapGet("", GetAll)
+            .RequireAuthorization(policy => policy.RequireRole("Admin"));
         group.MapGet("/by-order/{orderId:guid}", GetByOrder);
         group.MapGet("/{id:guid}", GetById);
         group.MapPost("/{id:guid}/checkout", Checkout);
@@ -24,6 +27,9 @@ public sealed class PaymentModule : ICarterModule
 
     private static async Task<IResult> GetMine(ISender sender, CancellationToken ct) =>
         (await sender.Send(new GetMyPaymentsQuery(), ct)).ToHttpResult();
+
+    private static async Task<IResult> GetAll(ISender sender, CancellationToken ct) =>
+        (await sender.Send(new GetPaymentsQuery(), ct)).ToHttpResult();
 
     private static async Task<IResult> GetById(Guid id, ISender sender, CancellationToken ct) =>
         (await sender.Send(new GetPaymentQuery(id), ct)).ToHttpResult();

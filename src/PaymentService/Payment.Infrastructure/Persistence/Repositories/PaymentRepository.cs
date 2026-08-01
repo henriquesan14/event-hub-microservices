@@ -34,6 +34,12 @@ public sealed class PaymentRepository(PaymentDbContext context) : IPaymentReposi
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<Domain.Entities.Payment>> GetAllAsync(CancellationToken ct) =>
+        await context.Payments
+            .AsNoTracking()
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(ct);
+
     public Task<bool> WebhookEventExistsAsync(string eventId, CancellationToken ct) =>
         context.ProcessedWebhookEvents.AnyAsync(x => x.Id == eventId, ct);
 

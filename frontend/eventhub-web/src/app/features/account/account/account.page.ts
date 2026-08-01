@@ -20,6 +20,11 @@ export class AccountPage {
   protected readonly auth = inject(AuthStore);
   readonly orders = signal<Order[]>([]);
   readonly payments = signal<Payment[]>([]);
+  readonly adminPayments = signal<Payment[]>([]);
+  readonly refundReasons = signal<Record<string, string>>({});
+  readonly refundingPaymentId = signal<string | null>(null);
+  readonly refundError = signal('');
+  readonly refundSuccess = signal('');
   private readonly eventNames = signal<Record<string, string>>({});
   private readonly eventDates = signal<Record<string, string>>({});
   readonly loading = signal(true);
@@ -51,6 +56,7 @@ export class AccountPage {
     required(schema.confirmPassword);
   });
   readonly orderLabels = ['Aguardando pagamento', 'Pago', 'Falha no pagamento', 'Cancelado', 'Expirado', 'Reembolsado'];
+  readonly paymentLabels = ['Pendente', 'Aprovado', 'Falhou', 'Cancelado', 'Expirado', 'Reembolsado', 'Estorno em processamento'];
   private refreshAttempts = 0;
 
   constructor() {
@@ -59,6 +65,7 @@ export class AccountPage {
       this.profileModel.set({ name: user.name, email: user.email });
     }
     this.load();
+    if (this.auth.isAdmin()) this.loadAdminPayments();
   }
 
   saveProfile(event: Event): void {
@@ -116,6 +123,50 @@ export class AccountPage {
     return status === 0 || status === 'Pending';
   }
 
+  isApprovedPayment(status: string | number): boolean {
+    return status === 1 || status === 'Approved';
+  }
+
+  billingTypeLabel(billingType?: string): string {
+    switch (billingType?.toUpperCase()) {
+      case 'PIX': return 'PIX';
+      case 'BOLETO': return 'Boleto';
+      case 'CREDIT_CARD': return 'Cartão de crédito';
+      case 'DEBIT_CARD': return 'Cartão de débito';
+      case 'UNDEFINED': return 'Escolhido no Asaas';
+      default: return 'Não informado';
+    }
+  }
+
+  setRefundReason(paymentId: string, event: Event): void {
+    const reason = (event.target as HTMLInputElement).value;
+    this.refundReasons.update(reasons => ({ ...reasons, [paymentId]: reason }));
+  }
+
+  refund(payment: Payment): void {
+    const reason = this.refundReasons()[payment.id]?.trim() ?? '';
+    this.refundError.set('');
+    this.refundSuccess.set('');
+    if (!reason) {
+      this.refundError.set('Informe o motivo do estorno.');
+      return;
+    }
+    if (!window.confirm(`Confirma o estorno de ${payment.amount.toFixed(2)} ${payment.currency}?`)) return;
+
+    this.refundingPaymentId.set(payment.id);
+    this.api.refundPayment(payment.id, reason).pipe(
+      finalize(() => this.refundingPaymentId.set(null)),
+    ).subscribe({
+      next: updated => {
+        this.adminPayments.update(items => items.map(item => item.id === updated.id ? updated : item));
+        this.refundSuccess.set('Estorno solicitado. Aguardando a confirmação do Asaas.');
+        this.refundReasons.update(reasons => ({ ...reasons, [payment.id]: '' }));
+        this.pollRefund(payment.id);
+      },
+      error: err => this.refundError.set(apiErrorMessage(err)),
+    });
+  }
+
   label(status: string | number, labels: string[]): string {
     return labels[Number(status)] ?? String(status);
   }
@@ -163,6 +214,29 @@ export class AccountPage {
         },
       });
     }
+  }
+
+  private loadAdminPayments(): void {
+    this.api.adminPayments().subscribe({
+      next: payments => this.adminPayments.set(payments),
+      error: err => this.refundError.set(apiErrorMessage(err)),
+    });
+  }
+
+  private pollRefund(paymentId: string, attempt = 0): void {
+    if (attempt >= 15) return;
+    setTimeout(() => this.api.adminPayments().subscribe({
+      next: payments => {
+        this.adminPayments.set(payments);
+        const payment = payments.find(item => item.id === paymentId);
+        if (payment?.status === 5 || payment?.status === 'Refunded') {
+          this.refundSuccess.set('Estorno confirmado pelo Asaas.');
+          this.load();
+          return;
+        }
+        this.pollRefund(paymentId, attempt + 1);
+      },
+    }), 2000);
   }
 
   private scheduleRefreshIfPaymentIsBeingPrepared(): void {

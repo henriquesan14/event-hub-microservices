@@ -18,4 +18,43 @@
     .item-actions { align-items: end; display: grid; gap: 10px; justify-items: end; }
     .preparing { color: var(--warning) !important; }
     .event-startat {margin-right: 5px;}
-    @media (max-width: 700px) { .account-heading { align-items: start; flex-direction: column; gap: 20px; } .stats, .profile-grid { grid-template-columns: 1fr; } .list-item { align-items: start; gap: 20px; } }
+    .refund-section .section-title { margin-bottom: 18px; }
+    .refund-section .section-title p { color: var(--muted); }
+    .refund-info { display: grid; gap: 5px; min-width: 0; }
+    .refund-info small { overflow-wrap: anywhere; }
+    .payment-method {
+      align-items: center;
+      background: var(--accent-soft);
+      border-radius: 999px;
+      color: var(--accent-dark);
+      display: inline-flex;
+      font-size: .78rem;
+      font-weight: 800;
+      justify-self: start;
+      padding: 5px 10px;
+    }
+    .refund-actions { display: grid; gap: 8px; min-width: min(100%, 340px); }
+    .refund-actions label { color: var(--ink); font-size: .82rem; font-weight: 800; }
+    .refund-actions input {
+      background: #fcfcfa;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      min-height: 48px;
+      outline: none;
+      padding: 0 14px;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+      width: 100%;
+    }
+    .refund-actions input::placeholder { color: #929895; }
+    .refund-actions input:hover { border-color: #b9bdb8; }
+    .refund-actions input:focus {
+      background: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .danger-button { background: #b91c1c; border: 0; border-radius: 999px; color: #fff; cursor: pointer; font-weight: 800; padding: 12px 18px; }
+    .danger-button:disabled { cursor: wait; opacity: .6; }
+    .danger-button:hover:not(:disabled) { background: #991b1b; }
+    .refund-item { gap: 24px; }
+    @media (max-width: 700px) { .account-heading { align-items: start; flex-direction: column; gap: 20px; } .stats, .profile-grid { grid-template-columns: 1fr; } .list-item { align-items: start; gap: 20px; } .refund-item { flex-direction: column; } .refund-actions { min-width: 100%; width: 100%; } }

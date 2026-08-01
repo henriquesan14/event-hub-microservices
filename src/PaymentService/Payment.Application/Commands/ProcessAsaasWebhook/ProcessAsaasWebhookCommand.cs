@@ -6,4 +6,5 @@ namespace Payment.Application.Commands.ProcessAsaasWebhook;
 public sealed record ProcessAsaasWebhookCommand(
     string EventId,
     string EventType,
-    string ProviderPaymentId) : ICommand<Result>;
+    string ProviderPaymentId,
+    string? BillingType) : ICommand<Result>;

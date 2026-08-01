@@ -96,5 +96,52 @@
           }
         </section>
 
+        @if (auth.isAdmin()) {
+          <section class="account-section refund-section">
+            <div class="section-title">
+              <span class="eyebrow">Administração</span>
+              <h2>Estornos</h2>
+              <p>Somente pagamentos aprovados podem ser enviados para estorno.</p>
+            </div>
+            @if (refundError()) { <div class="alert error">{{ refundError() }}</div> }
+            @if (refundSuccess()) { <div class="alert success">{{ refundSuccess() }}</div> }
+
+            <div class="list">
+              @for (payment of adminPayments(); track payment.id) {
+                <article class="card list-item refund-item">
+                  <div class="refund-info">
+                    <span class="status">{{ label(payment.status, paymentLabels) }}</span>
+                    <h3>{{ payment.amount | currency:payment.currency }}</h3>
+                    <span class="payment-method">{{ billingTypeLabel(payment.billingType) }}</span>
+                    <small>Pagamento {{ payment.id }}</small>
+                    <small>Pedido {{ payment.orderId }}</small>
+                    @if (payment.refundReason) { <small>Motivo: {{ payment.refundReason }}</small> }
+                  </div>
+                  @if (isApprovedPayment(payment.status)) {
+                    <div class="refund-actions">
+                      <label [for]="'refund-reason-' + payment.id">Motivo do estorno</label>
+                      <input
+                        [id]="'refund-reason-' + payment.id"
+                        maxlength="300"
+                        placeholder="Ex.: evento cancelado"
+                        [value]="refundReasons()[payment.id] ?? ''"
+                        (input)="setRefundReason(payment.id, $event)" />
+                      <button
+                        class="danger-button compact"
+                        type="button"
+                        [disabled]="refundingPaymentId() === payment.id"
+                        (click)="refund(payment)">
+                        {{ refundingPaymentId() === payment.id ? 'Solicitando…' : 'Estornar pagamento' }}
+                      </button>
+                    </div>
+                  }
+                </article>
+              } @empty {
+                <div class="card empty-state">Nenhum pagamento encontrado.</div>
+              }
+            </div>
+          </section>
+        }
+
       }
     </section>

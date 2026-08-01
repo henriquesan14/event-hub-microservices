@@ -102,6 +102,15 @@ public sealed class Payment : AggregateRoot<Guid>
         InvoiceUrl = invoiceUrl.Trim();
     }
 
+    public void UpdateBillingType(string? billingType)
+    {
+        if (string.IsNullOrWhiteSpace(billingType) ||
+            string.Equals(billingType, "UNDEFINED", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        BillingType = billingType.Trim().ToUpperInvariant();
+    }
+
     public void Fail(string reason, DateTime now)
     {
         if (Status != PaymentStatus.Pending)
