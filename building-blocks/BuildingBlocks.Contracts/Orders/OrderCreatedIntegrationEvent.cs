@@ -5,6 +5,8 @@ public sealed record OrderCreatedIntegrationEvent(
     Guid OrderId,
     Guid ReservationId,
     Guid UserId,
+    string EventName,
+    DateTime EventStartsAt,
     decimal Total,
     string Currency,
     DateTime CreatedAt,

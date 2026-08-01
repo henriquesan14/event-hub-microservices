@@ -35,6 +35,8 @@ public sealed class Order : AggregateRoot<Guid>
         Guid reservationId,
         Guid ticketTypeId,
         Guid eventId,
+        string eventName,
+        DateTime eventStartsAt,
         string ticketName,
         decimal unitPrice,
         string currency,
@@ -49,7 +51,8 @@ public sealed class Order : AggregateRoot<Guid>
 
         var orderId = Guid.NewGuid();
         var item = OrderItem.Create(
-            orderId, ticketTypeId, eventId, ticketName, unitPrice, currency, quantity);
+            orderId, ticketTypeId, eventId, eventName, eventStartsAt,
+            ticketName, unitPrice, currency, quantity);
         return new Order(orderId, userId, reservationId, expiresAt, item);
     }
 

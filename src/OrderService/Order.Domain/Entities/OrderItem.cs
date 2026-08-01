@@ -11,6 +11,8 @@ public sealed class OrderItem : Entity<Guid>
         Guid orderId,
         Guid ticketTypeId,
         Guid eventId,
+        string eventName,
+        DateTime? eventStartsAt,
         string name,
         decimal unitPrice,
         string currency,
@@ -20,6 +22,8 @@ public sealed class OrderItem : Entity<Guid>
         OrderId = orderId;
         TicketTypeId = ticketTypeId;
         EventId = eventId;
+        EventName = eventName.Trim();
+        EventStartsAt = eventStartsAt;
         Name = name;
         UnitPrice = unitPrice;
         Currency = currency.ToUpperInvariant();
@@ -30,6 +34,8 @@ public sealed class OrderItem : Entity<Guid>
     public Guid OrderId { get; private set; }
     public Guid TicketTypeId { get; private set; }
     public Guid EventId { get; private set; }
+    public string EventName { get; private set; } = string.Empty;
+    public DateTime? EventStartsAt { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public decimal UnitPrice { get; private set; }
     public string Currency { get; private set; } = string.Empty;
@@ -40,9 +46,12 @@ public sealed class OrderItem : Entity<Guid>
         Guid orderId,
         Guid ticketTypeId,
         Guid eventId,
+        string eventName,
+        DateTime eventStartsAt,
         string name,
         decimal unitPrice,
         string currency,
         int quantity) =>
-        new(Guid.NewGuid(), orderId, ticketTypeId, eventId, name, unitPrice, currency, quantity);
+        new(Guid.NewGuid(), orderId, ticketTypeId, eventId, eventName, eventStartsAt,
+            name, unitPrice, currency, quantity);
 }

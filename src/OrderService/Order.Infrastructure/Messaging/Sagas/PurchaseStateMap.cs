@@ -11,6 +11,7 @@ public sealed class PurchaseStateMap : IEntityTypeConfiguration<PurchaseState>
         entity.HasKey(x => x.CorrelationId);
         entity.Property(x => x.CurrentState).HasMaxLength(64);
         entity.Property(x => x.Currency).HasMaxLength(3);
+        entity.Property(x => x.EventName).HasMaxLength(200);
         entity.Property(x => x.FailureReason).HasMaxLength(500);
         entity.Property(x => x.Total).HasPrecision(18, 2);
         entity.HasIndex(x => x.ReservationId).IsUnique();

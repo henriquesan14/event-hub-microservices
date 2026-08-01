@@ -30,6 +30,8 @@ public sealed class PaymentApprovedConsumer(ITicketingRepository repository)
                 reservation.Id,
                 reservation.UserId,
                 reservation.TicketType.EventId,
+                reservation.TicketType.EventName,
+                reservation.TicketType.EventStartsAt!.Value,
                 reservation.TicketTypeId,
                 reservation.TicketType.Name,
                 reservation.Quantity,

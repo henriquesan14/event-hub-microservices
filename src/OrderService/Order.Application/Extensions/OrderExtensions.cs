@@ -15,7 +15,8 @@ public static class OrderExtensions
             order.ExpiresAt,
             order.PaymentId,
             order.Items.Select(x => new OrderItemDto(
-                x.Id, x.TicketTypeId, x.EventId, x.Name, x.UnitPrice,
+                x.Id, x.TicketTypeId, x.EventId, x.EventName, x.EventStartsAt,
+                x.Name, x.UnitPrice,
                 x.Currency, x.Quantity, x.Total)).ToList(),
             order.CreatedAt);
 }

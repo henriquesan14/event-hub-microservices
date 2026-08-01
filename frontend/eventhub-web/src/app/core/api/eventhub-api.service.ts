@@ -47,6 +47,8 @@ export class EventHubApi {
   }
 
   createTicketType(eventId: string, body: {
+    eventName: string;
+    eventStartsAt: string;
     name: string;
     description: string;
     price: number;
@@ -75,8 +77,12 @@ export class EventHubApi {
     return this.http.delete<void>(`/api/tickets/${id}`);
   }
 
-  reserve(ticketTypeId: string, quantity: number) {
-    return this.http.post<Reservation>(`/api/tickets/${ticketTypeId}/reservations`, { quantity });
+  reserve(ticketTypeId: string, eventName: string, eventStartsAt: string, quantity: number) {
+    return this.http.post<Reservation>(`/api/tickets/${ticketTypeId}/reservations`, {
+      eventName,
+      eventStartsAt,
+      quantity,
+    });
   }
 
   reservation(id: string) {

@@ -11,6 +11,8 @@ public sealed class PurchaseState : SagaStateMachineInstance
     public Guid? OrderId { get; set; }
     public Guid? PaymentId { get; set; }
     public Guid EventId { get; set; }
+    public string EventName { get; set; } = null!;
+    public DateTime? EventStartsAt { get; set; }
     public Guid TicketTypeId { get; set; }
     public int Quantity { get; set; }
     public decimal Total { get; set; }

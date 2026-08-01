@@ -48,7 +48,7 @@ public sealed class TicketingModule : ICarterModule
         CancellationToken ct)
     {
         var command = new CreateTicketTypeCommand(
-            eventId, request.Name, request.Description, request.Price, request.Currency,
+            eventId, request.EventName, request.EventStartsAt, request.Name, request.Description, request.Price, request.Currency,
             request.TotalQuantity, request.SalesStart, request.SalesEnd);
         var validation = await validator.ValidateRequest(command, ct);
         return validation ?? (await sender.Send(command, ct)).ToHttpResult();
@@ -78,7 +78,8 @@ public sealed class TicketingModule : ICarterModule
         ISender sender,
         CancellationToken ct)
     {
-        var command = new CreateReservationCommand(ticketTypeId, request.Quantity);
+        var command = new CreateReservationCommand(
+            ticketTypeId, request.EventName, request.EventStartsAt, request.Quantity);
         var validation = await validator.ValidateRequest(command, ct);
         return validation ?? (await sender.Send(command, ct)).ToHttpResult();
     }
@@ -94,6 +95,8 @@ public sealed class TicketingModule : ICarterModule
 }
 
 public sealed record CreateTicketTypeRequest(
+    string EventName,
+    DateTime EventStartsAt,
     string Name,
     string Description,
     decimal Price,
@@ -112,4 +115,7 @@ public sealed record UpdateTicketTypeRequest(
     DateTime SalesEnd,
     bool Active);
 
-public sealed record CreateReservationRequest(int Quantity);
+public sealed record CreateReservationRequest(
+    string EventName,
+    DateTime EventStartsAt,
+    int Quantity);

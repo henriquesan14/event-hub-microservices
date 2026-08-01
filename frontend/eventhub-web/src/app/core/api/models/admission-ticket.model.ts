@@ -3,6 +3,8 @@ export interface AdmissionTicket {
   orderId: string;
   reservationId: string;
   eventId: string;
+  eventName: string;
+  eventStartsAt?: string;
   ticketTypeId: string;
   ticketName: string;
   code: string;

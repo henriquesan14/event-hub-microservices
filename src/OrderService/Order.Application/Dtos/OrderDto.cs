@@ -18,6 +18,8 @@ public sealed record OrderItemDto(
     Guid Id,
     Guid TicketTypeId,
     Guid EventId,
+    string EventName,
+    DateTime? EventStartsAt,
     string Name,
     decimal UnitPrice,
     string Currency,

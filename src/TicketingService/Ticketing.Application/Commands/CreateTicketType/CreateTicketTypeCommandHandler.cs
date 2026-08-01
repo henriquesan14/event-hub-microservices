@@ -19,7 +19,8 @@ public sealed class CreateTicketTypeCommandHandler(
             return Ticketing.Application.Errors.TicketingErrors.Unauthorized();
 
         var entity = TicketType.Create(
-            request.EventId, request.Name, request.Description, request.Price, request.Currency,
+            request.EventId, request.EventName, request.EventStartsAt, request.Name,
+            request.Description, request.Price, request.Currency,
             request.TotalQuantity, request.SalesStart, request.SalesEnd);
         await repository.AddTicketTypeAsync(entity, ct);
         await repository.SaveChangesAsync(ct);

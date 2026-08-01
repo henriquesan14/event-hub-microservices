@@ -7,6 +7,8 @@ public sealed record AdmissionTicketDto(
     Guid OrderId,
     Guid ReservationId,
     Guid EventId,
+    string EventName,
+    DateTime? EventStartsAt,
     Guid TicketTypeId,
     string TicketName,
     string Code,

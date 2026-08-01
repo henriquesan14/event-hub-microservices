@@ -47,6 +47,8 @@ public sealed class PurchaseStateMachine : MassTransitStateMachine<PurchaseState
                     context.Saga.ReservationId = message.ReservationId;
                     context.Saga.UserId = message.UserId;
                     context.Saga.EventId = message.EventId;
+                    context.Saga.EventName = message.EventName;
+                    context.Saga.EventStartsAt = message.EventStartsAt;
                     context.Saga.TicketTypeId = message.TicketTypeId;
                     context.Saga.Quantity = message.Quantity;
                     context.Saga.Total = message.UnitPrice * message.Quantity;

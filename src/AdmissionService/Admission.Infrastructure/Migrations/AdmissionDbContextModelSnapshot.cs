@@ -57,6 +57,14 @@ namespace Admission.Infrastructure.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("EventStartsAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<DateTime>("IssuedAt")
                         .HasColumnType("timestamp without time zone");
 

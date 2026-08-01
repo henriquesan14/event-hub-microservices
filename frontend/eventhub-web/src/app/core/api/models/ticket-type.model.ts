@@ -1,6 +1,8 @@
 export interface TicketType {
   id: string;
   eventId: string;
+  eventName: string;
+  eventStartsAt?: string;
   name: string;
   description: string;
   price: number;

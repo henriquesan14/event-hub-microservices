@@ -25,7 +25,11 @@
               <div class="ticket-info">
                 <span class="eyebrow">EventHub Pass</span>
                 <span class="ticket-status">{{ statusLabel(ticket) }}</span>
-                <h2>{{ ticket.ticketName }}</h2>
+                <h2>{{ eventName(ticket) }}</h2>
+                <p>{{ ticket.ticketName }}</p>
+                @if (eventStartsAt(ticket); as startsAt) {
+                  <small>Evento em {{ startsAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                }
                 <small>Emitido em {{ ticket.issuedAt | date:'dd/MM/yyyy · HH:mm' }}</small>
                 @if (ticket.checkedInAt) {
                   <small>Utilizado em {{ ticket.checkedInAt | date:'dd/MM/yyyy · HH:mm' }}</small>

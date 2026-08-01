@@ -17,4 +17,5 @@
     .list-item small { color: var(--muted); }
     .item-actions { align-items: end; display: grid; gap: 10px; justify-items: end; }
     .preparing { color: var(--warning) !important; }
+    .event-startat {margin-right: 5px;}
     @media (max-width: 700px) { .account-heading { align-items: start; flex-direction: column; gap: 20px; } .stats, .profile-grid { grid-template-columns: 1fr; } .list-item { align-items: start; gap: 20px; } }

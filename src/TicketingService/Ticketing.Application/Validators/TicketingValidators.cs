@@ -10,6 +10,8 @@ public sealed class CreateTicketTypeCommandValidator : AbstractValidator<CreateT
     public CreateTicketTypeCommandValidator()
     {
         RuleFor(x => x.EventId).NotEmpty();
+        RuleFor(x => x.EventName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.EventStartsAt).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Description).MaximumLength(2000);
         RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
@@ -38,6 +40,8 @@ public sealed class CreateReservationCommandValidator : AbstractValidator<Create
     public CreateReservationCommandValidator()
     {
         RuleFor(x => x.TicketTypeId).NotEmpty();
+        RuleFor(x => x.EventName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.EventStartsAt).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThan(0).LessThanOrEqualTo(20);
     }
 }

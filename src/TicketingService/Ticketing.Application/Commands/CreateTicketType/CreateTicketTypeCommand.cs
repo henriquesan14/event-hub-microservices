@@ -6,6 +6,8 @@ namespace Ticketing.Application.Commands.CreateTicketType;
 
 public sealed record CreateTicketTypeCommand(
     Guid EventId,
+    string EventName,
+    DateTime EventStartsAt,
     string Name,
     string Description,
     decimal Price,

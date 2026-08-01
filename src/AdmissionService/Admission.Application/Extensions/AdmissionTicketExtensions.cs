@@ -11,6 +11,8 @@ public static class AdmissionTicketExtensions
             ticket.OrderId,
             ticket.ReservationId,
             ticket.EventId,
+            ticket.EventName,
+            ticket.EventStartsAt,
             ticket.TicketTypeId,
             ticket.TicketName,
             ticket.Code,

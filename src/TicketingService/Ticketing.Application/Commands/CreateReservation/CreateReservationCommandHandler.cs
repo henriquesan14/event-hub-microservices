@@ -25,6 +25,7 @@ public sealed class CreateReservationCommandHandler(
         if (ticketType is null) return TicketingErrors.TicketTypeNotFound(request.TicketTypeId);
 
         var now = DateTime.Now;
+        ticketType.EnsureEventSnapshot(request.EventName, request.EventStartsAt);
         ticketType.Reserve(request.Quantity, now);
         var reservation = TicketReservation.Create(
             ticketType.Id, userId, request.Quantity, now.AddMinutes(15));
@@ -38,6 +39,8 @@ public sealed class CreateReservationCommandHandler(
                 userContext.Name,
                 ticketType.Id,
                 ticketType.EventId,
+                ticketType.EventName,
+                ticketType.EventStartsAt!.Value,
                 ticketType.Name,
                 ticketType.Price,
                 ticketType.Currency,

@@ -73,8 +73,12 @@
                 <article class="card list-item">
                   <div>
                     <span class="status">{{ label(order.status, orderLabels) }}</span>
-                    <h3>{{ order.items[0]?.name || 'Pedido' }}</h3>
-                    <small>{{ order.createdAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                    <h3>{{ eventName(order) }}</h3>
+                    <p>{{ order.items[0]?.name }}</p>
+                    @if (eventStartsAt(order); as startsAt) {
+                      <small class="event-startat">Evento em {{ startsAt | date:'dd/MM/yyyy · HH:mm' }}</small>
+                    }
+                    <small>Emitido em {{ order.createdAt | date:'dd/MM/yyyy · HH:mm' }}</small>
                   </div>
                   <div class="item-actions">
                     <strong>{{ order.total | currency:order.currency }}</strong>

@@ -13,6 +13,8 @@ public sealed class TicketTypeConfiguration : IEntityTypeConfiguration<TicketTyp
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.EventId).IsRequired();
         builder.HasIndex(x => x.EventId);
+        builder.Property(x => x.EventName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.EventStartsAt).HasColumnType("timestamp without time zone");
         builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
         builder.Property(x => x.Description).HasMaxLength(2000);
         builder.Property(x => x.Price).HasPrecision(18, 2).IsRequired();

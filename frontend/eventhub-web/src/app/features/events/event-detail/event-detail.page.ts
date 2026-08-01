@@ -71,7 +71,12 @@ export class EventDetailPage {
       return;
     }
     this.reserving.set(ticket.id);
-    this.api.reserve(ticket.id, this.quantity(ticket.id)).subscribe({
+    this.api.reserve(
+      ticket.id,
+      this.event()?.title ?? '',
+      this.event()?.startsAt ?? '',
+      this.quantity(ticket.id),
+    ).subscribe({
       next: reservation => {
         this.reserving.set('');
         this.reservationMessage.set('Reserva criada. Seu pedido e pagamento serão preparados automaticamente.');

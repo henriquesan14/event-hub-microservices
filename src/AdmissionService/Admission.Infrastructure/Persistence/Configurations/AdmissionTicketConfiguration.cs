@@ -13,6 +13,8 @@ public sealed class AdmissionTicketConfiguration
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.TicketName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.EventName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.EventStartsAt).HasColumnType("timestamp without time zone");
         builder.Property(x => x.Code).HasMaxLength(128).IsRequired();
         builder.HasIndex(x => x.Code).IsUnique();
         builder.HasIndex(x => x.UserId);

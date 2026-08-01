@@ -7,6 +7,8 @@ public sealed record ReservationConfirmedIntegrationEvent(
     Guid ReservationId,
     Guid UserId,
     Guid EventId,
+    string EventName,
+    DateTime EventStartsAt,
     Guid TicketTypeId,
     string TicketName,
     int Quantity,

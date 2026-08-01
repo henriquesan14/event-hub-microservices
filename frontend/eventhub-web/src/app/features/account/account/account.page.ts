@@ -20,6 +20,8 @@ export class AccountPage {
   protected readonly auth = inject(AuthStore);
   readonly orders = signal<Order[]>([]);
   readonly payments = signal<Payment[]>([]);
+  private readonly eventNames = signal<Record<string, string>>({});
+  private readonly eventDates = signal<Record<string, string>>({});
   readonly loading = signal(true);
   readonly savingProfile = signal(false);
   readonly savingPassword = signal(false);
@@ -122,6 +124,16 @@ export class AccountPage {
     return status === 0 || status === 'PendingPayment';
   }
 
+  eventName(order: Order): string {
+    const item = order.items[0];
+    return item?.eventName || this.eventNames()[item?.eventId ?? ''] || 'Pedido';
+  }
+
+  eventStartsAt(order: Order): string | undefined {
+    const item = order.items[0];
+    return item?.eventStartsAt || this.eventDates()[item?.eventId ?? ''];
+  }
+
   private load(): void {
     forkJoin({
       orders: this.api.orders(),
@@ -129,12 +141,28 @@ export class AccountPage {
     }).subscribe({
       next: data => {
         this.orders.set(data.orders);
+        this.loadMissingEventNames(data.orders);
         this.payments.set(data.payments);
         this.loading.set(false);
         this.scheduleRefreshIfPaymentIsBeingPrepared();
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  private loadMissingEventNames(orders: Order[]): void {
+    const ids = [...new Set(orders
+      .map(order => order.items[0])
+      .filter(item => item && (!item.eventName || !item.eventStartsAt))
+      .map(item => item.eventId))];
+    for (const id of ids) {
+      this.api.event(id).subscribe({
+        next: event => {
+          this.eventNames.update(names => ({ ...names, [id]: event.title }));
+          this.eventDates.update(dates => ({ ...dates, [id]: event.startsAt }));
+        },
+      });
+    }
   }
 
   private scheduleRefreshIfPaymentIsBeingPrepared(): void {

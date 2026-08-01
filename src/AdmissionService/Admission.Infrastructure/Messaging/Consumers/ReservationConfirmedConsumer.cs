@@ -24,6 +24,8 @@ public sealed class ReservationConfirmedConsumer(IAdmissionRepository repository
                 message.ReservationId,
                 message.UserId,
                 message.EventId,
+                message.EventName,
+                message.EventStartsAt,
                 message.TicketTypeId,
                 message.TicketName,
                 GenerateCode(),
@@ -42,6 +44,8 @@ public sealed class ReservationConfirmedConsumer(IAdmissionRepository repository
                 message.ReservationId,
                 message.UserId,
                 message.EventId,
+                message.EventName,
+                message.EventStartsAt,
                 tickets.Count,
                 message.ConfirmedAt,
                 tickets.Select(ticket => new IssuedAdmissionTicket(

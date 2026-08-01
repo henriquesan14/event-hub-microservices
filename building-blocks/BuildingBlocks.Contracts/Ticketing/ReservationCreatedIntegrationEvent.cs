@@ -7,6 +7,8 @@ public sealed record ReservationCreatedIntegrationEvent(
     string? UserName,
     Guid TicketTypeId,
     Guid EventId,
+    string EventName,
+    DateTime EventStartsAt,
     string TicketName,
     decimal UnitPrice,
     string Currency,

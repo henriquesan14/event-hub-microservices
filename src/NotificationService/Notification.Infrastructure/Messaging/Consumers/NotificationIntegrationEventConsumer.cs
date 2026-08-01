@@ -293,6 +293,8 @@ public sealed class NotificationIntegrationEventConsumer(
         }
 
         var encodedName = WebUtility.HtmlEncode(recipientName);
+        var encodedEventName = WebUtility.HtmlEncode(message.EventName);
+        var eventDate = message.EventStartsAt.ToString("dd/MM/yyyy 'às' HH:mm");
         var html = $"""
             <!doctype html>
             <html lang="pt-BR">
@@ -302,6 +304,10 @@ public sealed class NotificationIntegrationEventConsumer(
                   <p style="margin:0;color:#059669;font-weight:bold;">EVENTHUB</p>
                   <h1 style="margin:12px 0 8px;font-size:28px;">Seus ingressos chegaram</h1>
                   <p style="color:#52525b;line-height:1.6;">Olá, {encodedName}! Guarde este e-mail e apresente um QR Code por participante na entrada.</p>
+                  <div style="margin:20px 0;padding:18px;background:#f4f4f5;border-radius:12px;">
+                    <p style="margin:0 0 6px;font-size:20px;font-weight:bold;color:#18181b;">{encodedEventName}</p>
+                    <p style="margin:0;color:#52525b;">{eventDate}</p>
+                  </div>
                   {ticketBlocks}
                   <p style="margin:24px 0 0;font-size:12px;color:#71717a;">Esta é uma mensagem automática. Não compartilhe seus QR Codes.</p>
                 </div>
@@ -312,6 +318,7 @@ public sealed class NotificationIntegrationEventConsumer(
 
         var text =
             $"Olá, {recipientName}!{Environment.NewLine}{Environment.NewLine}" +
+            $"{message.EventName} — {eventDate}{Environment.NewLine}{Environment.NewLine}" +
             $"Seus ingressos EventHub:{Environment.NewLine}{textTickets}" +
             $"{Environment.NewLine}Não compartilhe estes códigos.";
 

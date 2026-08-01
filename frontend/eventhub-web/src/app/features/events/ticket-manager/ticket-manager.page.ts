@@ -74,7 +74,11 @@ export class TicketManagerPage {
     const ticketId = this.editingTicketId();
     const request = ticketId
       ? this.api.updateTicketType(ticketId, this.model())
-      : this.api.createTicketType(this.eventId, this.model());
+      : this.api.createTicketType(this.eventId, {
+          ...this.model(),
+          eventName: this.event()?.title ?? '',
+          eventStartsAt: this.event()?.startsAt ?? '',
+        });
 
     request.pipe(
       finalize(() => this.saving.set(false)),

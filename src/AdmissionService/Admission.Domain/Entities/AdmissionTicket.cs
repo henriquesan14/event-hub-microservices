@@ -14,6 +14,8 @@ public sealed class AdmissionTicket : AggregateRoot<Guid>
         Guid reservationId,
         Guid userId,
         Guid eventId,
+        string eventName,
+        DateTime? eventStartsAt,
         Guid ticketTypeId,
         string ticketName,
         string code,
@@ -25,6 +27,8 @@ public sealed class AdmissionTicket : AggregateRoot<Guid>
         ReservationId = reservationId;
         UserId = userId;
         EventId = eventId;
+        EventName = eventName.Trim();
+        EventStartsAt = eventStartsAt;
         TicketTypeId = ticketTypeId;
         TicketName = ticketName;
         Code = code;
@@ -37,6 +41,8 @@ public sealed class AdmissionTicket : AggregateRoot<Guid>
     public Guid ReservationId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid EventId { get; private set; }
+    public string EventName { get; private set; } = string.Empty;
+    public DateTime? EventStartsAt { get; private set; }
     public Guid TicketTypeId { get; private set; }
     public string TicketName { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -53,6 +59,8 @@ public sealed class AdmissionTicket : AggregateRoot<Guid>
         Guid reservationId,
         Guid userId,
         Guid eventId,
+        string eventName,
+        DateTime eventStartsAt,
         Guid ticketTypeId,
         string ticketName,
         string code,
@@ -72,6 +80,8 @@ public sealed class AdmissionTicket : AggregateRoot<Guid>
             reservationId,
             userId,
             eventId,
+            eventName,
+            eventStartsAt,
             ticketTypeId,
             ticketName.Trim(),
             code.Trim(),
