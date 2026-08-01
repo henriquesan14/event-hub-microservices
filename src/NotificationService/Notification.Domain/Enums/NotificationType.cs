@@ -9,5 +9,6 @@ public enum NotificationType
     PaymentFailed,
     EmailConfirmation,
     PasswordReset,
-    TicketsIssued
+    TicketsIssued,
+    PaymentRefunded
 }

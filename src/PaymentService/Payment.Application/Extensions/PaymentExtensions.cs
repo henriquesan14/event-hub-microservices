@@ -21,5 +21,8 @@ public static class PaymentExtensions
             payment.BillingType,
             payment.InvoiceUrl,
             payment.FailureReason,
-            payment.CreatedAt);
+            payment.CreatedAt,
+            payment.RefundRequestedAt,
+            payment.RefundedAt,
+            payment.RefundReason);
 }

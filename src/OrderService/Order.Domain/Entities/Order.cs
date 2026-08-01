@@ -87,4 +87,13 @@ public sealed class Order : AggregateRoot<Guid>
         PaymentId = paymentId;
         Status = OrderStatus.PaymentFailed;
     }
+
+    public void Refund(Guid paymentId)
+    {
+        if (Status == OrderStatus.Refunded)
+            return;
+        if (Status != OrderStatus.Paid || PaymentId != paymentId)
+            throw new DomainException("Only the paid order can be refunded.");
+        Status = OrderStatus.Refunded;
+    }
 }

@@ -9,5 +9,6 @@ public interface IAdmissionRepository
     Task<AdmissionTicket?> GetByIdAsync(Guid id, CancellationToken ct);
     Task<AdmissionTicket?> GetByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<AdmissionTicket>> GetByUserAsync(Guid userId, CancellationToken ct);
+    Task<IReadOnlyList<AdmissionTicket>> GetByPaymentIdAsync(Guid paymentId, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }

@@ -48,4 +48,13 @@ public sealed class TicketReservation : AggregateRoot<Guid>
             throw new DomainException("Only pending reservations can be released.");
         Status = expired ? ReservationStatus.Expired : ReservationStatus.Released;
     }
+
+    public void Refund()
+    {
+        if (Status == ReservationStatus.Refunded)
+            return;
+        if (Status != ReservationStatus.Confirmed)
+            throw new DomainException("Only confirmed reservations can be refunded.");
+        Status = ReservationStatus.Refunded;
+    }
 }

@@ -23,6 +23,7 @@ public sealed class NotificationIntegrationEventConsumer(
       IConsumer<OrderExpiredIntegrationEvent>,
       IConsumer<PaymentApprovedIntegrationEvent>,
       IConsumer<PaymentFailedIntegrationEvent>,
+      IConsumer<PaymentRefundedIntegrationEvent>,
       IConsumer<UserRegisteredIntegrationEvent>,
       IConsumer<UserUpdatedIntegrationEvent>,
       IConsumer<UserEmailConfirmationRequestedIntegrationEvent>,
@@ -70,6 +71,16 @@ public sealed class NotificationIntegrationEventConsumer(
             "/meus-ingressos",
             context.CancellationToken);
     }
+
+    public Task Consume(ConsumeContext<PaymentRefundedIntegrationEvent> context) =>
+        AddAndNotifyRealtimeAsync(
+            context.Message.UserId,
+            NotificationType.PaymentRefunded,
+            "Pagamento estornado",
+            $"Seu pagamento de {context.Message.Amount:N2} {context.Message.Currency} foi estornado e os ingressos foram cancelados.",
+            context.Message.PaymentId,
+            "/minha-conta",
+            context.CancellationToken);
 
     public Task Consume(ConsumeContext<PaymentFailedIntegrationEvent> context) =>
         AddAndNotifyRealtimeAsync(

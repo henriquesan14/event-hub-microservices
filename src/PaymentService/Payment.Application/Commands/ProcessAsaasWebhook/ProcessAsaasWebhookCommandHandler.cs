@@ -68,6 +68,24 @@ public sealed class ProcessAsaasWebhookCommandHandler(
                     ct);
             }
         }
+        else if (payment is not null && request.EventType == "PAYMENT_REFUNDED" &&
+                 payment.Status is PaymentStatus.Approved or PaymentStatus.RefundPending)
+        {
+            payment.ConfirmRefund(now);
+            await publishEndpoint.Publish(
+                new PaymentRefundedIntegrationEvent(
+                    payment.OrderId,
+                    payment.Id,
+                    payment.OrderId,
+                    payment.ReservationId,
+                    payment.UserId,
+                    payment.Amount,
+                    payment.Currency,
+                    payment.RefundReason,
+                    now),
+                context => context.CorrelationId = payment.OrderId,
+                ct);
+        }
 
         await repository.AddWebhookEventAsync(
             ProcessedWebhookEvent.Create(request.EventId, request.EventType, now),

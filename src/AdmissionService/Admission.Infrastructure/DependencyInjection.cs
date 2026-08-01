@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.AddConsumer<ReservationConfirmedConsumer>();
+            x.AddConsumer<PaymentRefundedConsumer>();
             x.AddEntityFrameworkOutbox<AdmissionDbContext>(outbox =>
             {
                 outbox.UsePostgres();
@@ -51,6 +52,13 @@ public static class DependencyInjection
                         retry.Interval(3, TimeSpan.FromSeconds(2)));
                     endpoint.UseEntityFrameworkOutbox<AdmissionDbContext>(context);
                     endpoint.ConfigureConsumer<ReservationConfirmedConsumer>(context);
+                });
+
+                cfg.ReceiveEndpoint("admission-payment-refunded", endpoint =>
+                {
+                    endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
+                    endpoint.UseEntityFrameworkOutbox<AdmissionDbContext>(context);
+                    endpoint.ConfigureConsumer<PaymentRefundedConsumer>(context);
                 });
             });
         });

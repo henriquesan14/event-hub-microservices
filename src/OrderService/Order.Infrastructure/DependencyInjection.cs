@@ -32,6 +32,7 @@ public static class DependencyInjection
             x.AddConsumer<ReservationCreatedConsumer>();
             x.AddConsumer<PaymentApprovedConsumer>();
             x.AddConsumer<PaymentFailedConsumer>();
+            x.AddConsumer<PaymentRefundedConsumer>();
             x.AddSagaStateMachine<PurchaseStateMachine, PurchaseState>()
                 .EntityFrameworkRepository(repository =>
                 {
@@ -75,6 +76,13 @@ public static class DependencyInjection
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
                     endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
                     endpoint.ConfigureConsumer<PaymentFailedConsumer>(context);
+                });
+
+                cfg.ReceiveEndpoint("order-payment-refunded", endpoint =>
+                {
+                    endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
+                    endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
+                    endpoint.ConfigureConsumer<PaymentRefundedConsumer>(context);
                 });
 
                 cfg.ReceiveEndpoint("order-purchase-saga", endpoint =>

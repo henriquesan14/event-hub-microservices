@@ -2,6 +2,7 @@ using BuildingBlocks.Api.Extensions;
 using Carter;
 using MediatR;
 using Payment.Application.Commands.CreateCheckout;
+using Payment.Application.Commands.RefundPayment;
 using Payment.Application.Queries.GetMyPayments;
 using Payment.Application.Queries.GetPayment;
 using Payment.Application.Queries.GetPaymentByOrder;
@@ -17,6 +18,8 @@ public sealed class PaymentModule : ICarterModule
         group.MapGet("/by-order/{orderId:guid}", GetByOrder);
         group.MapGet("/{id:guid}", GetById);
         group.MapPost("/{id:guid}/checkout", Checkout);
+        group.MapPost("/{id:guid}/refund", Refund)
+            .RequireAuthorization(policy => policy.RequireRole("Admin"));
     }
 
     private static async Task<IResult> GetMine(ISender sender, CancellationToken ct) =>
@@ -53,4 +56,13 @@ public sealed class PaymentModule : ICarterModule
         string CpfCnpj,
         string? MobilePhone,
         string BillingType = "UNDEFINED");
+
+    private static async Task<IResult> Refund(
+        Guid id,
+        RefundPaymentRequest request,
+        ISender sender,
+        CancellationToken ct) =>
+        (await sender.Send(new RefundPaymentCommand(id, request.Reason), ct)).ToHttpResult();
+
+    private sealed record RefundPaymentRequest(string? Reason);
 }

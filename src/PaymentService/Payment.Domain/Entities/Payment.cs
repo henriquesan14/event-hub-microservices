@@ -40,6 +40,9 @@ public sealed class Payment : AggregateRoot<Guid>
     public string? BillingType { get; private set; }
     public string? InvoiceUrl { get; private set; }
     public string? FailureReason { get; private set; }
+    public DateTime? RefundRequestedAt { get; private set; }
+    public DateTime? RefundedAt { get; private set; }
+    public string? RefundReason { get; private set; }
 
     public static Payment Create(
         Guid orderId,
@@ -129,5 +132,28 @@ public sealed class Payment : AggregateRoot<Guid>
         Status = PaymentStatus.Expired;
         FailureReason = "Order expired";
         FailedAt = now;
+    }
+
+    public void RequestRefund(string? reason, DateTime now)
+    {
+        if (Status == PaymentStatus.RefundPending || Status == PaymentStatus.Refunded)
+            return;
+        if (Status != PaymentStatus.Approved)
+            throw new DomainException("Only approved payments can be refunded.");
+
+        Status = PaymentStatus.RefundPending;
+        RefundRequestedAt = now;
+        RefundReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+    }
+
+    public void ConfirmRefund(DateTime now)
+    {
+        if (Status == PaymentStatus.Refunded)
+            return;
+        if (Status is not (PaymentStatus.Approved or PaymentStatus.RefundPending))
+            throw new DomainException("Only approved payments can be marked as refunded.");
+
+        Status = PaymentStatus.Refunded;
+        RefundedAt = now;
     }
 }

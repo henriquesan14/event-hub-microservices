@@ -52,6 +52,24 @@ public sealed class AsaasGateway(HttpClient httpClient) : IAsaasGateway
             $"Asaas cancellation failed with status {(int)response.StatusCode}: {error}");
     }
 
+    public async Task RefundChargeAsync(
+        string providerPaymentId,
+        string? reason,
+        CancellationToken ct)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            $"payments/{Uri.EscapeDataString(providerPaymentId)}/refund",
+            new { description = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim() },
+            ct);
+
+        if (response.IsSuccessStatusCode)
+            return;
+
+        var error = await response.Content.ReadAsStringAsync(ct);
+        throw new HttpRequestException(
+            $"Asaas refund failed with status {(int)response.StatusCode}: {error}");
+    }
+
     private async Task<string?> FindCustomerAsync(Guid userId, CancellationToken ct)
     {
         using var response = await httpClient.GetAsync(

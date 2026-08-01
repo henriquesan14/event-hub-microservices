@@ -18,4 +18,7 @@ public sealed record PaymentDto(
     string? BillingType,
     string? InvoiceUrl,
     string? FailureReason,
-    DateTime? CreatedAt);
+    DateTime? CreatedAt,
+    DateTime? RefundRequestedAt,
+    DateTime? RefundedAt,
+    string? RefundReason);

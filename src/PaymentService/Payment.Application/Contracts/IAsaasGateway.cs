@@ -6,6 +6,10 @@ public interface IAsaasGateway
         CreateAsaasCharge request,
         CancellationToken ct);
     Task CancelChargeAsync(string providerPaymentId, CancellationToken ct);
+    Task RefundChargeAsync(
+        string providerPaymentId,
+        string? reason,
+        CancellationToken ct);
 }
 
 public sealed record CreateAsaasCharge(

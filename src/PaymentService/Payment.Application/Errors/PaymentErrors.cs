@@ -22,4 +22,8 @@ public static class PaymentErrors
         Error.Validation("Payment.InvalidCheckoutData", "Name, email and CPF/CNPJ are required");
     public static Error UnsupportedCurrency(string currency) =>
         Error.Validation("Payment.UnsupportedCurrency", $"Asaas checkout requires BRL, but payment currency is {currency}");
+    public static Error ProviderReferenceRequired() =>
+        Error.Conflict("Payment.ProviderReferenceRequired", "Payment does not have an Asaas charge");
+    public static Error BankSlipRefundUnsupported() =>
+        Error.Validation("Payment.BankSlipRefundUnsupported", "Bank slip refunds require the Asaas bank details flow");
 }

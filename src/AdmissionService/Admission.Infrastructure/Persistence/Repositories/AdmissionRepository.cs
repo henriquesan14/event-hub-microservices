@@ -32,4 +32,9 @@ public sealed class AdmissionRepository(AdmissionDbContext context)
 
     public Task<int> SaveChangesAsync(CancellationToken ct) =>
         context.SaveChangesAsync(ct);
+
+    public async Task<IReadOnlyList<AdmissionTicket>> GetByPaymentIdAsync(
+        Guid paymentId,
+        CancellationToken ct) =>
+        await context.Tickets.Where(x => x.PaymentId == paymentId).ToListAsync(ct);
 }
