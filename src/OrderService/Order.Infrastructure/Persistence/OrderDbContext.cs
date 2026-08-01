@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Order.Domain.Entities;
 using MassTransit;
+using Order.Infrastructure.Messaging.Sagas;
 
 namespace Order.Infrastructure.Persistence;
 
@@ -8,6 +9,7 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
 {
     public DbSet<Domain.Entities.Order> Orders => Set<Domain.Entities.Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<PurchaseState> PurchaseStates => Set<PurchaseState>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

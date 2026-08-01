@@ -8,6 +8,7 @@ using Order.Infrastructure.Persistence;
 using Order.Infrastructure.Persistence.Repositories;
 using MassTransit;
 using Order.Infrastructure.Messaging.Consumers;
+using Order.Infrastructure.Messaging.Sagas;
 
 namespace Order.Infrastructure;
 
@@ -31,6 +32,13 @@ public static class DependencyInjection
             x.AddConsumer<ReservationCreatedConsumer>();
             x.AddConsumer<PaymentApprovedConsumer>();
             x.AddConsumer<PaymentFailedConsumer>();
+            x.AddSagaStateMachine<PurchaseStateMachine, PurchaseState>()
+                .EntityFrameworkRepository(repository =>
+                {
+                    repository.ConcurrencyMode = ConcurrencyMode.Pessimistic;
+                    repository.ExistingDbContext<OrderDbContext>();
+                    repository.UsePostgres();
+                });
             x.AddEntityFrameworkOutbox<OrderDbContext>(outbox =>
             {
                 outbox.UsePostgres();
@@ -67,6 +75,13 @@ public static class DependencyInjection
                     endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
                     endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
                     endpoint.ConfigureConsumer<PaymentFailedConsumer>(context);
+                });
+
+                cfg.ReceiveEndpoint("order-purchase-saga", endpoint =>
+                {
+                    endpoint.UseMessageRetry(retry => retry.Interval(3, TimeSpan.FromSeconds(2)));
+                    endpoint.UseEntityFrameworkOutbox<OrderDbContext>(context);
+                    endpoint.ConfigureSaga<PurchaseState>(context);
                 });
             });
         });
