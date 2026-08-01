@@ -3,6 +3,13 @@
 Plataforma de eventos baseada em microserviços, ASP.NET Core 10, Angular 22,
 PostgreSQL, RabbitMQ, YARP, SignalR e integração com Asaas.
 
+## Arquitetura
+
+![Arquitetura de microserviços do EventHub](docs/eventhub-architecture.png)
+
+O diagrama também está disponível no formato editável do
+[draw.io](docs/eventhub-architecture.drawio).
+
 ## Executar com Docker Compose
 
 Pré-requisitos:

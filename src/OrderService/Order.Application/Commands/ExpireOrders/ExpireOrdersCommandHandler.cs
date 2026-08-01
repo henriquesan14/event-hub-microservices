@@ -21,8 +21,8 @@ public sealed class ExpireOrdersCommandHandler(
             order.Expire(now);
             await publishEndpoint.Publish(
                 new OrderExpiredIntegrationEvent(
-                    order.Id, order.Id, order.ReservationId, order.UserId),
-                context => context.CorrelationId = order.Id,
+                    order.ReservationId, order.Id, order.ReservationId, order.UserId),
+                context => context.CorrelationId = order.ReservationId,
                 ct);
             expired++;
         }

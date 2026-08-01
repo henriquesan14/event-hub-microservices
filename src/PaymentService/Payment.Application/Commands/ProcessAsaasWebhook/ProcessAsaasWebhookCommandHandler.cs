@@ -43,7 +43,7 @@ public sealed class ProcessAsaasWebhookCommandHandler(
                 payment.Approve(request.ProviderPaymentId, now);
                 await publishEndpoint.Publish(
                     new PaymentApprovedIntegrationEvent(
-                        payment.OrderId,
+                        payment.ReservationId,
                         payment.Id,
                         payment.OrderId,
                         payment.ReservationId,
@@ -51,7 +51,7 @@ public sealed class ProcessAsaasWebhookCommandHandler(
                         payment.Amount,
                         payment.Currency,
                         now),
-                    context => context.CorrelationId = payment.OrderId,
+                    context => context.CorrelationId = payment.ReservationId,
                     ct);
             }
             else if (FailedEvents.Contains(request.EventType))
@@ -59,14 +59,14 @@ public sealed class ProcessAsaasWebhookCommandHandler(
                 payment.Fail(request.EventType, now);
                 await publishEndpoint.Publish(
                     new PaymentFailedIntegrationEvent(
-                        payment.OrderId,
+                        payment.ReservationId,
                         payment.Id,
                         payment.OrderId,
                         payment.ReservationId,
                         payment.UserId,
                         request.EventType,
                         now),
-                    context => context.CorrelationId = payment.OrderId,
+                    context => context.CorrelationId = payment.ReservationId,
                     ct);
             }
         }
@@ -76,7 +76,7 @@ public sealed class ProcessAsaasWebhookCommandHandler(
             payment.ConfirmRefund(now);
             await publishEndpoint.Publish(
                 new PaymentRefundedIntegrationEvent(
-                    payment.OrderId,
+                    payment.ReservationId,
                     payment.Id,
                     payment.OrderId,
                     payment.ReservationId,
@@ -85,7 +85,7 @@ public sealed class ProcessAsaasWebhookCommandHandler(
                     payment.Currency,
                     payment.RefundReason,
                     now),
-                context => context.CorrelationId = payment.OrderId,
+                context => context.CorrelationId = payment.ReservationId,
                 ct);
         }
 

@@ -16,6 +16,7 @@ public sealed class PurchaseStateMachine : MassTransitStateMachine<PurchaseState
     public State PaymentFailed { get; private set; } = null!;
     public State Cancelled { get; private set; } = null!;
     public State Expired { get; private set; } = null!;
+    public State Refunded { get; private set; } = null!;
 
     public Event<ReservationCreatedIntegrationEvent> ReservationCreated { get; private set; } = null!;
     public Event<OrderCreatedIntegrationEvent> OrderCreated { get; private set; } = null!;
@@ -25,6 +26,7 @@ public sealed class PurchaseStateMachine : MassTransitStateMachine<PurchaseState
     public Event<AdmissionTicketsIssuedIntegrationEvent> TicketsIssued { get; private set; } = null!;
     public Event<OrderCancelledIntegrationEvent> OrderCancelled { get; private set; } = null!;
     public Event<OrderExpiredIntegrationEvent> OrderExpired { get; private set; } = null!;
+    public Event<PaymentRefundedIntegrationEvent> PaymentRefunded { get; private set; } = null!;
 
     public PurchaseStateMachine()
     {
@@ -38,6 +40,7 @@ public sealed class PurchaseStateMachine : MassTransitStateMachine<PurchaseState
         Event(() => TicketsIssued, x => x.CorrelateById(context => context.Message.CorrelationId));
         Event(() => OrderCancelled, x => x.CorrelateById(context => context.Message.CorrelationId));
         Event(() => OrderExpired, x => x.CorrelateById(context => context.Message.CorrelationId));
+        Event(() => PaymentRefunded, x => x.CorrelateById(context => context.Message.CorrelationId));
 
         Initially(
             When(ReservationCreated)
@@ -108,6 +111,14 @@ public sealed class PurchaseStateMachine : MassTransitStateMachine<PurchaseState
                 .TransitionTo(Cancelled),
             When(OrderExpired)
                 .Then(context => context.Saga.CompletedAt = DateTime.Now)
-                .TransitionTo(Expired));
+                .TransitionTo(Expired),
+            When(PaymentRefunded)
+                .Then(context =>
+                {
+                    context.Saga.PaymentId = context.Message.PaymentId;
+                    context.Saga.CompletedAt = context.Message.RefundedAt;
+                    context.Saga.FailureReason = context.Message.Reason;
+                })
+                .TransitionTo(Refunded));
     }
 }
